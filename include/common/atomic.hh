@@ -1,7 +1,7 @@
 //===------------------------------------------===
 // Saturn 2023
 //
-// Identification: lib\include\common\mutex.hh
+// Identification: include\common\atomic.hh
 //
 // Author: Ji Wang <jiwangcdi@gmail.com>
 //
@@ -9,12 +9,10 @@
 
 #pragma once
 
-#include <mutex>
+#include <atomic>
 
 namespace saturn {
 
-using std::mutex;
-using std::scoped_lock;
-using std::unique_lock;
+using std::atomic;
 
 } // namespace saturn

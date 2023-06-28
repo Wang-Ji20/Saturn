@@ -1,7 +1,7 @@
 //===------------------------------------------===
 // Saturn 2023
 //
-// Identification: lib\include\common\atomic.hh
+// Identification: include\common\format.hh
 //
 // Author: Ji Wang <jiwangcdi@gmail.com>
 //
@@ -9,10 +9,8 @@
 
 #pragma once
 
-#include <atomic>
+#include <format>
 
 namespace saturn {
-
-using std::atomic;
-
+using std::format;
 } // namespace saturn

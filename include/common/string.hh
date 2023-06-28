@@ -1,12 +1,17 @@
 //===------------------------------------------===
 // Saturn 2023
 //
-// Identification: lib\include\common\exception.hh
+// Identification: include\common\string.hh
 //
 // Author: Ji Wang <jiwangcdi@gmail.com>
 //
 //===------------------------------------------===
 
-namespace saturn {
+#pragma once
 
+#include <string>
+
+namespace saturn {
+using std::string;
+using std::string_view;
 } // namespace saturn
