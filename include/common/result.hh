@@ -1,7 +1,7 @@
 //===------------------------------------------===
 // Saturn 2023
 //
-// Identification: include\common\precondition.hh
+// Identification: include\common\result.hh
 //
 // Author: Ji Wang <jiwangcdi@gmail.com>
 //
@@ -9,4 +9,9 @@
 
 #pragma once
 
-// TODO
+#include "absl/status/statusor.h"
+
+namespace saturn {
+template <typename T>
+using result = absl::StatusOr<T>;
+} // namespace saturn

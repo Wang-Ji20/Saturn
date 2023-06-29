@@ -59,8 +59,6 @@ public:
 
   ExceptionType type;
 
-  // TODO: add stack trace
-
 private:
   string message_;
 };

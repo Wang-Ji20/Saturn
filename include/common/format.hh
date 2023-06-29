@@ -9,8 +9,10 @@
 
 #pragma once
 
-#include <format>
+#include "absl/strings/str_format.h"
 
 namespace saturn {
-using std::format;
+template <typename... Args> auto format(Args &&...args) -> std::string {
+    return absl::StrFormat(std::forward<Args>(args)...);
+}
 } // namespace saturn
