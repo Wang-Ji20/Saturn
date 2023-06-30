@@ -44,9 +44,12 @@ enum class ExceptionType {
 
 static constexpr array<string_view,
                        size_t(ExceptionType::BuiltinExceptionNumberCount)>
-    ExceptionTypeString = {"IllegalArgumentException", "InternalException",
-                           "VerifyException",          "UnreachableException",
-                           "NotImplementedException",  "OtherException"};
+    ExceptionTypeString = {"IllegalArgumentException",
+                           "InternalException",
+                           "VerifyException",
+                           "UnreachableException",
+                           "NotImplementedException",
+                           "OtherException"};
 
 class Exception : public std::exception {
 public:
@@ -69,7 +72,8 @@ public:
 
   template <typename... Args>
   explicit IllegalArgumentException(const string &message, Args &&...args)
-      : Exception(ExceptionType::IllegalArgumentException, message,
+      : Exception(ExceptionType::IllegalArgumentException,
+                  message,
                   std::forward<Args>(args)...) {}
 };
 
@@ -79,7 +83,8 @@ public:
 
   template <typename... Args>
   explicit InternalException(const string &message, Args &&...args)
-      : Exception(ExceptionType::InternalException, message,
+      : Exception(ExceptionType::InternalException,
+                  message,
                   std::forward<Args>(args)...) {}
 };
 
@@ -89,7 +94,8 @@ public:
 
   template <typename... Args>
   explicit VerifyException(const string &message, Args &&...args)
-      : Exception(ExceptionType::VerifyException, message,
+      : Exception(ExceptionType::VerifyException,
+                  message,
                   std::forward<Args>(args)...) {}
 };
 
@@ -99,7 +105,8 @@ public:
 
   template <typename... Args>
   explicit UnreachableException(const string &message, Args &&...args)
-      : Exception(ExceptionType::UnreachableException, message,
+      : Exception(ExceptionType::UnreachableException,
+                  message,
                   std::forward<Args>(args)...) {}
 };
 
@@ -109,7 +116,8 @@ public:
 
   template <typename... Args>
   explicit NotImplementedException(const string &message, Args &&...args)
-      : Exception(ExceptionType::NotImplementedException, message,
+      : Exception(ExceptionType::NotImplementedException,
+                  message,
                   std::forward<Args>(args)...) {}
 };
 
@@ -119,7 +127,8 @@ public:
 
   template <typename... Args>
   explicit OtherException(const string &message, Args &&...args)
-      : Exception(ExceptionType::OtherException, message,
+      : Exception(ExceptionType::OtherException,
+                  message,
                   std::forward<Args>(args)...) {}
 };
 

@@ -1,4 +1,4 @@
-add_subdirectory(common)
+add_subdirectory(storage)
 
 add_library(
     saturn
@@ -8,12 +8,23 @@ add_library(
 
 set(
     SATURN_LIBS
-    common
+    storage
+)
+
+set(
+    THIRD_PARTY_DEPENDENCIES
+    absl::base
+    absl::log
+    absl::check
+    absl::str_format
+    absl::optional
+    absl::statusor
 )
 
 target_link_libraries(
     saturn
     ${SATURN_LIBS}
+    ${THIRD_PARTY_DEPENDENCIES}
 )
 
 target_include_directories(

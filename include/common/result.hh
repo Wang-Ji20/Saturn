@@ -12,6 +12,5 @@
 #include "absl/status/statusor.h"
 
 namespace saturn {
-template <typename T>
-using result = absl::StatusOr<T>;
+template <typename T> using result = absl::StatusOr<T>;
 } // namespace saturn

@@ -13,6 +13,6 @@
 
 namespace saturn {
 template <typename... Args> auto format(Args &&...args) -> std::string {
-    return absl::StrFormat(std::forward<Args>(args)...);
+  return absl::StrFormat(std::forward<Args>(args)...);
 }
 } // namespace saturn
