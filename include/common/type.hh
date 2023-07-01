@@ -31,12 +31,12 @@ using u64 = std::uint64_t;
 // pointers are strong anyway
 
 // datum
-STRONG_TYPEDEF_TYPE_CLASS(num)(u8, datum_t);
-using datum_ptr_t = datum_t *;
+STRONG_TYPEDEF_TYPE_CLASS(num)(u8, Datum);
+using DatumPtr = Datum *;
 
 // idx
-STRONG_TYPEDEF_TYPE_CLASS(num)(u64, idx_t);
+STRONG_TYPEDEF_TYPE_CLASS(num)(u64, Size);
 
-
+STRONG_TYPEDEF_TYPE_CLASS(eq)(u64, BlockId);
 
 } // namespace saturn

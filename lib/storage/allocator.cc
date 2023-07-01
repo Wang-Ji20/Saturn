@@ -9,12 +9,12 @@
 
 #include "storage/allocator.hh"
 #include "common/logger.hh"
+#include "common/type.hh"
+#include <cstdlib>
 
 namespace saturn {
 
-AllocatedData::AllocatedData(Allocator &allocator,
-                             datum_ptr_t pointer,
-                             idx_t size)
+AllocatedData::AllocatedData(Allocator &allocator, DatumPtr pointer, Size size)
     : allocator_(&allocator), pointer_(pointer), size_(size) {
   DCHECK(pointer_ != nullptr);
 };
@@ -22,5 +22,44 @@ AllocatedData::AllocatedData(Allocator &allocator,
 AllocatedData::AllocatedData(AllocatedData &&other) noexcept
     : allocator_(std::move(other.allocator_)), pointer_(other.pointer_),
       size_(other.size_){};
+
+//===----------------------------------------------------===
+// Allocator
+//===----------------------------------------------------===
+
+Allocator::Allocator(MallocFunction mallocFunction,
+                     FreeFunction freeFunction,
+                     ReallocFunction reallocFunction)
+    : malloc_(mallocFunction), free_(freeFunction), realloc_(reallocFunction) {
+  DCHECK(malloc_ != nullptr);
+  DCHECK(free_ != nullptr);
+  DCHECK(realloc_ != nullptr);
+};
+
+auto Allocator::Allocate(Size size) -> AllocatedData {
+  DCHECK(size > 0);
+  DCHECK(size <= MAXIMUM_SIZE);
+  auto pointer = malloc_(size);
+  DCHECK(pointer != nullptr);
+  return AllocatedData{*this, pointer, size};
+};
+
+auto Allocator::AllocateData(Size size) -> DatumPtr {
+  DCHECK(size > 0);
+  DCHECK(size <= MAXIMUM_SIZE);
+  auto pointer = malloc_(size);
+  DCHECK(pointer != nullptr);
+  return pointer;
+};
+
+auto Allocator::FreeData(DatumPtr pointer, Size size) -> void {
+  DCHECK(pointer != nullptr);
+  free_(pointer);
+};
+
+auto Allocator::Free(AllocatedData &data) -> void {
+  DCHECK(data.pointer_ != nullptr);
+  free_(data.pointer_);
+};
 
 } // namespace saturn

@@ -17,7 +17,9 @@
 #undef DISALLOW_COPY
 #define DISALLOW_COPY(classname)                                               \
   classname(const classname &) = delete;                                       \
-  auto operator=(const classname &)->classname & = delete
+  auto operator=(const classname &)->classname & = delete;                     \
+  classname(classname &) = delete;                                             \
+  auto operator=(classname &)->classname & = delete
 
 #undef DISALLOW_MOVE
 #define DISALLOW_MOVE(classname)                                               \

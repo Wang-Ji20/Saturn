@@ -12,3 +12,11 @@
 //===--------------------------------------===
 
 #pragma once
+
+#include "storage/file_buffer.hh"
+
+namespace saturn {
+
+class Block : FileBuffer {};
+
+} // namespace saturn
