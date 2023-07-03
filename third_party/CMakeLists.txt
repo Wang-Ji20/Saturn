@@ -1,6 +1,7 @@
 add_subdirectory(abseil)
+add_subdirectory(googletest)
 
-set(DEPS_SUBMODULES abseil)
+set(DEPS_SUBMODULES abseil googletest)
 foreach(submodule IN LISTS DEPS_SUBMODULES)
     file(GLOB SUBMOD_CONTENTS ${submodule})
     list(LENGTH SUBMOD_CONTENTS SUBMOD_CONTENT_LEN)

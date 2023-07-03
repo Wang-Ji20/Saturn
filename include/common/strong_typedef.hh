@@ -10,7 +10,8 @@
 //===------------------------------------------------===
 // typedefs that disallow implicit conversions
 //         * scalar types ONLY *
-// should have not much runtime overhead
+// should have not much runtime overhead, according to
+// Compiler Explorer (https://godbolt.org) at least in -O2
 //===------------------------------------------------===
 
 #pragma once

@@ -30,3 +30,15 @@
 #define DISALLOW_COPY_AND_MOVE(classname)                                      \
   DISALLOW_COPY(classname);                                                    \
   DISALLOW_MOVE(classname)
+
+#undef CAST_TO_DERIVED
+#define CAST_TO_DERIVED(classname)                                             \
+  template <class T> auto Cast()->T & {                                        \
+    static_assert(std::is_base_of_v<classname, T> == true, "invalid cast");    \
+    return reinterpret_cast<T &>(this);                                        \
+  }                                                                            \
+  template <class T> auto Cast() const->const T & {                            \
+    static_assert(std::is_base_of_v<classname, const T> == true,               \
+                  "invalid cast");                                             \
+    return reinterpret_cast<const T &>(this);                                  \
+  }
