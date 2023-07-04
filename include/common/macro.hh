@@ -81,4 +81,14 @@
       ->bool {                                                                 \
     return ((flags & test_flag) == test_flag) || ContainFlags(flags, args...); \
   }                                                                            \
+  inline constexpr auto ContainFlagsAnd(enumName flags, enumName test_flag)    \
+      ->bool {                                                                 \
+    return (flags & test_flag) == test_flag;                                   \
+  }                                                                            \
+  template <class enumName, typename... Args>                                  \
+  inline constexpr auto ContainFlagsAnd(                                       \
+      enumName flags, enumName test_flag, Args... args)                        \
+      ->bool {                                                                 \
+    return ((flags & test_flag) == test_flag) && ContainFlags(flags, args...); \
+  }                                                                            \
   enum class enumName : underLyingType
