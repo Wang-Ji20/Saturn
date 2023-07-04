@@ -16,6 +16,28 @@
 
 namespace saturn {
 
-class UnixFileSystem : public FileSystem {};
+class UnixFileSystem : public FileSystem {
+  auto Open(string path, OpenFlags flags) -> unique_ptr<FileHandle> final;
+
+  void
+  Read(FileHandle &handle, void *buffer, Size nr_bytes, Offset location) final;
+
+  void Write(FileHandle &handle,
+             const void *buffer,
+             Size nr_bytes,
+             Offset location) final;
+
+  auto Read(FileHandle &handle, void *buffer, Size nr_bytes)
+      -> result<Size> final;
+
+  auto Write(FileHandle &handle, const void *buffer, Size nr_bytes)
+      -> result<Size> final;
+
+  auto GetFileSize(FileHandle &handle) -> result<Size> final;
+  auto GetLastModifiedTime(FileHandle &handle) -> time_t final;
+
+  auto GetFileType(FileHandle &handle) -> FileType final;
+  void Truncate(FileHandle &handle, Size new_size) final;
+};
 
 } // namespace saturn

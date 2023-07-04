@@ -13,4 +13,9 @@ include_directories(${SATURN_INCLUDE_DIRECTORY} ${SATURN_THIRD_PARTY_INCLUDE_DIR
 
 add_subdirectory(lib)
 add_subdirectory(third_party)
-add_subdirectory(test)
+
+# if this project is included by other project, don't build test
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+    enable_testing()
+    add_subdirectory(test)
+endif()

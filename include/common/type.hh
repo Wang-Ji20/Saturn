@@ -34,7 +34,8 @@ using u64 = std::uint64_t;
 STRONG_TYPEDEF_TYPE_CLASS(num)(u8, Datum);
 using DatumPtr = Datum *;
 
-// idx
+// offset, size
+STRONG_TYPEDEF_TYPE_CLASS(num)(u64, Offset);
 STRONG_TYPEDEF_TYPE_CLASS(num)(u64, Size);
 
 STRONG_TYPEDEF_TYPE_CLASS(eq)(u64, BlockId);

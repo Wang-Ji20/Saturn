@@ -35,10 +35,50 @@
 #define CAST_TO_DERIVED(classname)                                             \
   template <class T> auto Cast()->T & {                                        \
     static_assert(std::is_base_of_v<classname, T> == true, "invalid cast");    \
-    return reinterpret_cast<T &>(this);                                        \
+    return reinterpret_cast<T &>(*this);                                       \
   }                                                                            \
   template <class T> auto Cast() const->const T & {                            \
     static_assert(std::is_base_of_v<classname, const T> == true,               \
                   "invalid cast");                                             \
-    return reinterpret_cast<const T &>(this);                                  \
+    return reinterpret_cast<const T &>(*this);                                 \
   }
+
+//===-------------------------------------------------------------===
+// This is an enum class with:
+// * | and & operator
+// * ContainFlags function test if a flag is contained in a flag set
+//===-------------------------------------------------------------===
+
+#undef SATURN_ENUM_CLASS
+#define SATURN_ENUM_CLASS(enumName, underLyingType)                            \
+  enum class enumName : underLyingType;                                        \
+  inline auto operator|(enumName lhs, enumName rhs)->enumName {                \
+    return static_cast<enumName>(static_cast<underLyingType>(lhs) |            \
+                                 static_cast<underLyingType>(rhs));            \
+  }                                                                            \
+  inline auto operator|=(enumName &lhs, enumName rhs)->enumName & {            \
+    lhs = lhs | rhs;                                                           \
+    return lhs;                                                                \
+  }                                                                            \
+  inline auto operator&(enumName lhs, enumName rhs)->enumName {                \
+    return static_cast<enumName>(static_cast<underLyingType>(lhs) &            \
+                                 static_cast<underLyingType>(rhs));            \
+  }                                                                            \
+  inline auto operator&=(enumName &lhs, enumName rhs)->enumName & {            \
+    lhs = lhs & rhs;                                                           \
+    return lhs;                                                                \
+  }                                                                            \
+  inline auto operator~(enumName flags)->enumName {                            \
+    return static_cast<enumName>(~static_cast<underLyingType>(flags));         \
+  }                                                                            \
+  inline constexpr auto ContainFlags(enumName flags, enumName test_flag)       \
+      ->bool {                                                                 \
+    return (flags & test_flag) == test_flag;                                   \
+  }                                                                            \
+  template <class enumName, typename... Args>                                  \
+  inline constexpr auto ContainFlags(                                          \
+      enumName flags, enumName test_flag, Args... args)                        \
+      ->bool {                                                                 \
+    return ((flags & test_flag) == test_flag) || ContainFlags(flags, args...); \
+  }                                                                            \
+  enum class enumName : underLyingType

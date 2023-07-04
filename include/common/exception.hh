@@ -44,12 +44,12 @@ enum class ExceptionType {
 
 static constexpr array<string_view,
                        size_t(ExceptionType::BuiltinExceptionNumberCount)>
-    ExceptionTypeString = {"IllegalArgumentException",
-                           "InternalException",
-                           "VerifyException",
-                           "UnreachableException",
-                           "NotImplementedException",
-                           "OtherException"};
+    ExceptionTypeString = {"IllegalArgumentException ",
+                           "InternalException ",
+                           "VerifyException ",
+                           "UnreachableException ",
+                           "NotImplementedException ",
+                           "OtherException "};
 
 class Exception : public std::exception {
 public:
@@ -58,7 +58,8 @@ public:
 
   template <typename... Args>
   explicit Exception(ExceptionType type, const string &message, Args &&...args)
-      : message_(format(message, std::forward<Args>(args)...)) {}
+      : message_(ExceptionTypeString[size_t(type)] +
+                 format(message, std::forward<Args>(args)...)) {}
 
   ExceptionType type;
 
