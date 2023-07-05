@@ -52,23 +52,23 @@
 #undef SATURN_ENUM_CLASS
 #define SATURN_ENUM_CLASS(enumName, underlyingType)                            \
   enum class enumName : underlyingType;                                        \
-  inline auto operator|(enumName lhs, enumName rhs)->enumName {                \
+  inline constexpr auto operator|(enumName lhs, enumName rhs)->enumName {      \
     return static_cast<enumName>(static_cast<underlyingType>(lhs) |            \
                                  static_cast<underlyingType>(rhs));            \
   }                                                                            \
-  inline auto operator|=(enumName &lhs, enumName rhs)->enumName & {            \
+  inline constexpr auto operator|=(enumName &lhs, enumName rhs)->enumName & {  \
     lhs = lhs | rhs;                                                           \
     return lhs;                                                                \
   }                                                                            \
-  inline auto operator&(enumName lhs, enumName rhs)->enumName {                \
+  inline constexpr auto operator&(enumName lhs, enumName rhs)->enumName {      \
     return static_cast<enumName>(static_cast<underlyingType>(lhs) &            \
                                  static_cast<underlyingType>(rhs));            \
   }                                                                            \
-  inline auto operator&=(enumName &lhs, enumName rhs)->enumName & {            \
+  inline constexpr auto operator&=(enumName &lhs, enumName rhs)->enumName & {  \
     lhs = lhs & rhs;                                                           \
     return lhs;                                                                \
   }                                                                            \
-  inline auto operator~(enumName flags)->enumName {                            \
+  inline constexpr auto operator~(enumName flags)->enumName {                  \
     return static_cast<enumName>(~static_cast<underlyingType>(flags));         \
   }                                                                            \
   inline constexpr auto ContainFlags(enumName flags, enumName test_flag)       \

@@ -17,7 +17,7 @@
 
 namespace saturn {
 
-class WindowsFileSystem : public FileSystem {
+class WindowsFileSystem final : public FileSystem {
 public:
   auto Open(string path, OpenFlags flags) -> unique_ptr<FileHandle> final;
   void Remove(string path) final;

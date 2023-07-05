@@ -25,7 +25,7 @@ extern "C" {
 
 namespace saturn {
 
-struct UnixFileHandle : public FileHandle {
+struct UnixFileHandle final : public FileHandle {
   static constexpr int INVALID_FD = -1;
 
 public:

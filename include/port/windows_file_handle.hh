@@ -23,7 +23,7 @@ extern "C" {
 
 namespace saturn {
 
-struct WindowsFileHandle : public FileHandle {
+struct WindowsFileHandle final : public FileHandle {
   static constexpr HANDLE INVALID_HANDLE = INVALID_HANDLE_VALUE;
 };
 

@@ -16,7 +16,7 @@
 
 namespace saturn {
 
-class UnixFileSystem : public FileSystem {
+class UnixFileSystem final : public FileSystem {
 public:
   ~UnixFileSystem() final = default;
   auto Open(string path, OpenFlags flags) -> unique_ptr<FileHandle> final;
