@@ -66,14 +66,4 @@ public:
   virtual auto GetPosition(FileHandle &handle) -> Offset = 0;
 };
 
-class UnixFileSystem;
-class WindowsFileSystem;
-
-using LocalFileSystem =
-#ifdef _WIN32
-    WindowsFileSystem;
-#else
-    UnixFileSystem;
-#endif
-
 } // namespace saturn

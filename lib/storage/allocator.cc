@@ -11,6 +11,7 @@
 #include "common/logger.hh"
 #include "common/type.hh"
 #include <cstdlib>
+#include <utility>
 
 namespace saturn {
 
@@ -30,7 +31,8 @@ AllocatedData::AllocatedData(AllocatedData &&other) noexcept
 Allocator::Allocator(MallocFunction mallocFunction,
                      FreeFunction freeFunction,
                      ReallocFunction reallocFunction)
-    : malloc_(mallocFunction), free_(freeFunction), realloc_(reallocFunction) {
+    : malloc_(std::move(mallocFunction)), free_(std::move(freeFunction)),
+      realloc_(std::move(reallocFunction)) {
   DCHECK(malloc_ != nullptr);
   DCHECK(free_ != nullptr);
   DCHECK(realloc_ != nullptr);
@@ -61,5 +63,14 @@ auto Allocator::Free(AllocatedData &data) -> void {
   DCHECK(data.pointer_ != nullptr);
   free_(data.pointer_);
 };
+
+auto Allocator::ReallocateData(DatumPtr pointer, Size size) -> DatumPtr {
+  DCHECK(pointer != nullptr);
+  DCHECK(size > 0);
+  DCHECK(size <= MAXIMUM_SIZE);
+  auto newPointer = realloc_(pointer, size);
+  DCHECK(newPointer != nullptr);
+  return newPointer;
+}
 
 } // namespace saturn

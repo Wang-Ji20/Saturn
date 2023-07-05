@@ -63,14 +63,4 @@ public:
   string path;
 };
 
-struct WindowsFileHandle;
-struct UnixFileHandle;
-
-using LocalFileHandle =
-#ifdef _WIN32
-    WindowsFileHandle;
-#else
-    UnixFileHandle;
-#endif
-
 } // namespace saturn

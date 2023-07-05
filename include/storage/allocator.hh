@@ -68,6 +68,8 @@ public:
 
   auto AllocateData(Size size) -> DatumPtr;
   auto FreeData(DatumPtr pointer, Size size) -> void;
+  auto ReallocateData(DatumPtr pointer, Size size) -> DatumPtr;
+
   auto Allocate(Size size) -> AllocatedData;
   auto Free(AllocatedData &data) -> void;
 

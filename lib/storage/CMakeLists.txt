@@ -3,6 +3,7 @@ add_library(
     OBJECT
     allocator.cc
     block.cc
+    file_buffer.cc
 )
 
 set(

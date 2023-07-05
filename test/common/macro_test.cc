@@ -23,7 +23,7 @@ public:
   int a {3};
 };
 
-class Derived : public Base {
+class Derived final : public Base {
 public:
   Derived() = default;
   ~Derived() final = default;

@@ -7,17 +7,18 @@
 //
 //===------------------------------------------===
 
-
-#include "port/unix_file_system.hh"
-#include "port/unix_file_handle.hh"
+#include "port/local_file_handle.hh"
+#include "port/local_file_system.hh"
 #include "gtest/gtest.h"
 
-TEST(FS_TEST, UNIX_FS) {
+TEST(FSTest, LocalFS) {
   using namespace saturn;
   using namespace std;
 
-  auto fs = make_unique<UnixFileSystem>();
-  auto handle = fs->Open("./test.test", OpenFlags::WRITE | OpenFlags::READ | OpenFlags::CREATE_TRUNCATE);
+  auto fs = make_unique<LocalFileSystem>();
+  auto handle =
+      fs->Open("./test.test",
+               OpenFlags::WRITE | OpenFlags::READ | OpenFlags::CREATE_TRUNCATE);
   ASSERT_TRUE(handle);
   auto size = fs->GetFileSize(*handle);
   if (!size.ok()) {
