@@ -17,15 +17,20 @@
 namespace saturn {
 
 class UnixFileSystem : public FileSystem {
+public:
+  ~UnixFileSystem() final = default;
   auto Open(string path, OpenFlags flags) -> unique_ptr<FileHandle> final;
+  void Remove(string path) final;
 
-  void
-  Read(FileHandle &handle, void *buffer, Size nr_bytes, Offset location) final;
+  void ReadAt(FileHandle &handle,
+              void *buffer,
+              Size nr_bytes,
+              Offset location) final;
 
-  void Write(FileHandle &handle,
-             const void *buffer,
-             Size nr_bytes,
-             Offset location) final;
+  void WriteAt(FileHandle &handle,
+               const void *buffer,
+               Size nr_bytes,
+               Offset location) final;
 
   auto Read(FileHandle &handle, void *buffer, Size nr_bytes)
       -> result<Size> final;
@@ -38,6 +43,9 @@ class UnixFileSystem : public FileSystem {
 
   auto GetFileType(FileHandle &handle) -> FileType final;
   void Truncate(FileHandle &handle, Size new_size) final;
+
+  void Seek(FileHandle &handle, Offset location) final;
+  auto GetPosition(FileHandle &handle) -> Offset final;
 };
 
 } // namespace saturn

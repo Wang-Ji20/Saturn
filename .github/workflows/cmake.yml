@@ -1,0 +1,25 @@
+name: CMake Build Matrix
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  BUILD_TYPE: Debug
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        cxx: [g++, clang++]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Configure CMake
+        run: CXX=${{matrix.cxx}} cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      - name: Test
+        working-directory: ${{github.workspace}}/build
+        run: make check-tests

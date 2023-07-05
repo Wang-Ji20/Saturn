@@ -7,8 +7,9 @@
 //
 //===------------------------------------------===
 
+#ifndef _WIN32
+
 #include "port/unix_file_handle.hh"
-#include <unistd.h>
 
 namespace saturn {
 
@@ -20,3 +21,5 @@ void UnixFileHandle::Close() {
 }
 
 } // namespace saturn
+
+#endif

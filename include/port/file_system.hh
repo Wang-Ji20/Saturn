@@ -29,29 +29,51 @@ SATURN_ENUM_CLASS(OpenFlags, u8){
     DIRECT_IO = 1 << 5,
 };
 
+// NOTE: virtual function is needed to define. only pure virtual function is
+// allowed to contain only declarations.
 class FileSystem {
 public:
-  virtual ~FileSystem();
+  virtual ~FileSystem() = default;
+  virtual auto Open(string path, OpenFlags flags) -> unique_ptr<FileHandle> = 0;
+  virtual void Remove(string path) = 0;
 
-  virtual auto Open(string path, OpenFlags flags) -> unique_ptr<FileHandle>;
-
+  // Read exactly nr_bytes from the file at location, terminate when cannot read
+  // that much.
   virtual void
-  Read(FileHandle &handle, void *buffer, Size nr_bytes, Offset location);
+  ReadAt(FileHandle &handle, void *buffer, Size nr_bytes, Offset location) = 0;
 
-  virtual void
-  Write(FileHandle &handle, const void *buffer, Size nr_bytes, Offset location);
+  // Write exactly nr_bytes to the file at location, terminate when cannot write
+  // that much.
+  virtual void WriteAt(FileHandle &handle,
+                       const void *buffer,
+                       Size nr_bytes,
+                       Offset location) = 0;
 
   virtual auto Read(FileHandle &handle, void *buffer, Size nr_bytes)
-      -> result<Size>;
+      -> result<Size> = 0;
 
   virtual auto Write(FileHandle &handle, const void *buffer, Size nr_bytes)
-      -> result<Size>;
+      -> result<Size> = 0;
 
-  virtual auto GetFileSize(FileHandle &handle) -> result<Size>;
-  virtual auto GetLastModifiedTime(FileHandle &handle) -> time_t;
+  virtual auto GetFileSize(FileHandle &handle) -> result<Size> = 0;
+  virtual auto GetLastModifiedTime(FileHandle &handle) -> time_t = 0;
 
-  virtual auto GetFileType(FileHandle &handle) -> FileType;
-  virtual void Truncate(FileHandle &handle, Size new_size);
+  virtual auto GetFileType(FileHandle &handle) -> FileType = 0;
+  virtual void Truncate(FileHandle &handle, Size new_size) = 0;
+
+  virtual void Seek(FileHandle &handle, Offset location) = 0;
+  void Reset(FileHandle &handle);
+  virtual auto GetPosition(FileHandle &handle) -> Offset = 0;
 };
+
+class UnixFileSystem;
+class WindowsFileSystem;
+
+using LocalFileSystem =
+#ifdef _WIN32
+    WindowsFileSystem;
+#else
+    UnixFileSystem;
+#endif
 
 } // namespace saturn

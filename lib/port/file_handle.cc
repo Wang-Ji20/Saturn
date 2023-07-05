@@ -12,12 +12,12 @@
 
 namespace saturn {
 
-void FileHandle::Read(void *buffer, Size nr_bytes, Offset location) {
-  fs.Read(*this, buffer, nr_bytes, location);
+void FileHandle::ReadAt(void *buffer, Size nr_bytes, Offset location) {
+  fs.ReadAt(*this, buffer, nr_bytes, location);
 }
 
-void FileHandle::Write(const void *buffer, Size nr_bytes, Offset location) {
-  fs.Write(*this, buffer, nr_bytes, location);
+void FileHandle::WriteAt(const void *buffer, Size nr_bytes, Offset location) {
+  fs.WriteAt(*this, buffer, nr_bytes, location);
 }
 
 auto FileHandle::Read(void *buffer, Size nr_bytes) -> result<Size> {

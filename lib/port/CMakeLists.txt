@@ -5,6 +5,7 @@ add_library(
     file_system.cc
     unix_file_handle.cc
     unix_file_system.cc
+    windows_file_system.cc
 )
 
 set(

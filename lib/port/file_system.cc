@@ -9,4 +9,8 @@
 
 #include "port/file_system.hh"
 
-namespace saturn {} // namespace saturn
+namespace saturn {
+
+void FileSystem::Reset(FileHandle &handle) { Seek(handle, Offset(0)); }
+
+} // namespace saturn

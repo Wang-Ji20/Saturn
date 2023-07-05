@@ -43,9 +43,9 @@ private:
   Size size_{};
 };
 
-using MallocFunction = DatumPtr (*)(Size);
-using FreeFunction = void (*)(DatumPtr);
-using ReallocFunction = DatumPtr (*)(DatumPtr, Size);
+using MallocFunction = std::function<DatumPtr(Size)>;
+using FreeFunction = std::function<void(DatumPtr)>;
+using ReallocFunction = std::function<DatumPtr(DatumPtr, Size)>;
 
 class Allocator {
 public:

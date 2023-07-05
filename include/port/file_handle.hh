@@ -37,14 +37,14 @@ struct FileHandle {
 public:
   FileHandle(FileSystem &fs, string path) : fs(fs), path(std::move(path)){};
   DISALLOW_COPY(FileHandle);
-  virtual ~FileHandle();
+  virtual ~FileHandle() = default;
 
   CAST_TO_DERIVED(FileHandle);
 
   auto Read(void *buf, Size size) -> result<Size>;
-  void Read(void *buf, Size size, Offset location);
+  void ReadAt(void *buf, Size size, Offset location);
   auto Write(const void *buf, Size size) -> result<Size>;
-  void Write(const void *buf, Size size, Offset location);
+  void WriteAt(const void *buf, Size size, Offset location);
   void Seek(Offset location);
   void Reset();
   auto GetPosition() -> Offset;
@@ -62,5 +62,15 @@ public:
   FileSystem &fs;
   string path;
 };
+
+struct WindowsFileHandle;
+struct UnixFileHandle;
+
+using LocalFileHandle =
+#ifdef _WIN32
+    WindowsFileHandle;
+#else
+    UnixFileHandle;
+#endif
 
 } // namespace saturn
