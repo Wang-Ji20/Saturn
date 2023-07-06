@@ -31,7 +31,7 @@ using u64 = std::uint64_t;
 // pointers are strong anyway
 
 // datum
-STRONG_TYPEDEF_TYPE_CLASS(num)(u8, Datum);
+using Datum = u8;
 using DatumPtr = Datum *;
 
 // offset, size

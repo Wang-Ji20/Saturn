@@ -47,6 +47,7 @@
 // This is an enum class with:
 // * | and & operator
 // * ContainFlags function test if a flag is contained in a flag set
+// It is fit for flags with certain values.
 //===-------------------------------------------------------------===
 
 #undef SATURN_ENUM_CLASS

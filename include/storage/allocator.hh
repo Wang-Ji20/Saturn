@@ -11,12 +11,14 @@
 // this file contains the allocator for memory.
 // it serves as dependency injection for different malloc systems
 // and provides a unified interface for memory allocation.
+// https://www.huy.rocks/everyday/01-05-2022-zig-where-data-is-stored-and-how-to-choose-an-allocator
 //===----------------------------------------------------------===
 
 #pragma once
 
 #include "common/macro.hh"
 #include "common/optional.hh"
+#include "common/shared_ptr.hh"
 #include "common/type.hh"
 #include "common/unique_ptr.hh"
 
@@ -72,6 +74,9 @@ public:
 
   auto Allocate(Size size) -> AllocatedData;
   auto Free(AllocatedData &data) -> void;
+
+  static auto GetDefaultAllocator() -> Allocator &;
+  static auto GetDefaultAllocatorPointer() -> weak_ptr<Allocator>;
 
 private:
   MallocFunction malloc_{};

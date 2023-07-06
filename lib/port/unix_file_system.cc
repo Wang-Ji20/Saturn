@@ -104,7 +104,7 @@ void UnixFileSystem::WriteAt(FileHandle &handle,
   DCHECK(buffer);
   DCHECK(nr_bytes > 0);
   int fd = handle.Cast<UnixFileHandle>().fd;
-  int nr_written = pwrite(fd, buffer, nr_bytes, offset);
+  i64 nr_written = pwrite(fd, buffer, nr_bytes, offset);
   PCHECK(nr_written > -1);
   PCHECK(Size(nr_written) == nr_bytes); // considered a severe error
 }
@@ -114,7 +114,7 @@ auto UnixFileSystem::Read(FileHandle &handle, void *buffer, Size nr_bytes)
   DCHECK(buffer);
   DCHECK(nr_bytes > 0);
   int fd = handle.Cast<UnixFileHandle>().fd;
-  int nr_read = read(fd, buffer, nr_bytes);
+  i64 nr_read = read(fd, buffer, nr_bytes);
   if (nr_read < 0) {
     PLOG(WARNING) << "read failed";
     return absl::ResourceExhaustedError("read failed");
@@ -180,13 +180,15 @@ void UnixFileSystem::Truncate(FileHandle &handle, Size size) {
 }
 
 static void setFilePointer(int fd, Offset offset) {
-  PCHECK(lseek(fd, offset, SEEK_SET) == offset);
+  i64 result = lseek(fd, offset, SEEK_SET);
+  PCHECK(result >= 0);
+  PCHECK(Size(result) == offset);
 }
 
 static auto getFilePointer(int fd) -> Offset {
-  auto offset = Offset(lseek(fd, 0, SEEK_CUR));
+  auto offset = lseek(fd, 0, SEEK_CUR);
   PCHECK(offset >= 0);
-  return offset;
+  return Offset(offset);
 }
 
 void UnixFileSystem::Seek(FileHandle &handle, Offset offset) {

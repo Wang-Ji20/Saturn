@@ -73,4 +73,14 @@ auto Allocator::ReallocateData(DatumPtr pointer, Size size) -> DatumPtr {
   return newPointer;
 }
 
+auto Allocator::GetDefaultAllocator() -> Allocator & {
+  auto defaultAllocator = GetDefaultAllocatorPointer().lock();
+  return *defaultAllocator;
+};
+
+auto Allocator::GetDefaultAllocatorPointer() -> weak_ptr<Allocator> {
+  static auto defaultAllocatorPointer = make_shared<Allocator>();
+  return defaultAllocatorPointer;
+};
+
 } // namespace saturn
