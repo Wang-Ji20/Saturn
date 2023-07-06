@@ -1,33 +1,22 @@
 //===------------------------------------------===
 // Saturn 2023
 //
-// Identification: include/storage/storage_manager.hh
+// Identification: include/storage/buffer_handle.hh
 //
 // Author: Ji Wang <jiwangcdi@gmail.com>
 //
 //===------------------------------------------===
 
 //===------------------------------------------------===
-// this file manages the disk. performs WAL
+// buffer handle holds a space in memory.
+// It is managed by buffer manager.
+//
+// It pin the data or unpin them automatically using RAII.
+//
 //===------------------------------------------------===
 
 #pragma once
 
-#include <utility>
-
-#include "common/macro.hh"
-#include "common/string.hh"
-
 namespace saturn {
-
-class StorageManager {
-public:
-  explicit StorageManager(string path) : path_{std::move(path)} {};
-
-  CAST_TO_DERIVED(StorageManager);
-
-private:
-  string path_;
-};
 
 } // namespace saturn

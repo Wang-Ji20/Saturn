@@ -18,9 +18,17 @@
 namespace saturn {
 
 enum class FileBufferType : u8 {
-  BLOCK = 1,          // a small piece of free memory
-  MANAGED_BUFFER = 2, // a buffer managed by the buffer pool
-  TINY_BUFFER = 3,    // a tiny buffer
+  BLOCK =
+      1, // this kind of buffer is used to store PRESISTENT data like tables!
+
+  MANAGED_BUFFER = 2, // a buffer managed by the buffer pool, it can be used to
+                      // store TEMPORARY data! we may remember that the query
+                      // execution in DBMS is potentially very space-consuming.
+                      // We may need to spill sorting or aggregation results to
+                      // disk when running, and load them back afterwards. This
+                      // kind of buffer is used to store such TEMPORARY data.
+
+  TINY_BUFFER = 3, // a tiny buffer
 };
 
 class FileBuffer {

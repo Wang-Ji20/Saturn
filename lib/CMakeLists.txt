@@ -21,6 +21,7 @@ set(
     absl::str_format
     absl::optional
     absl::statusor
+    absl::status
 )
 
 target_link_libraries(

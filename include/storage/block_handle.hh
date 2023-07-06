@@ -9,6 +9,16 @@
 
 #pragma once
 
+#include "common/type.hh"
+
 namespace saturn {
+
+enum class BlockStatus : u8 {
+  LOADED,
+  UNLOADED,
+};
+
+
+
 
 } // namespace saturn

@@ -4,6 +4,7 @@ add_library(
     allocator.cc
     block.cc
     file_buffer.cc
+    buffer_pool.cc
 )
 
 set(
