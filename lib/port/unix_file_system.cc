@@ -93,7 +93,8 @@ void UnixFileSystem::ReadAt(FileHandle &handle,
   DCHECK(nr_bytes > 0);
   int fd = handle.Cast<UnixFileHandle>().fd;
   int nr_read = pread(fd, buffer, nr_bytes, offset);
-  PCHECK(nr_read == nr_bytes); // considered a severe error
+  PCHECK(nr_read > -1);
+  PCHECK(Size(nr_read) == nr_bytes); // considered a severe error
 }
 
 void UnixFileSystem::WriteAt(FileHandle &handle,
@@ -104,7 +105,8 @@ void UnixFileSystem::WriteAt(FileHandle &handle,
   DCHECK(nr_bytes > 0);
   int fd = handle.Cast<UnixFileHandle>().fd;
   int nr_written = pwrite(fd, buffer, nr_bytes, offset);
-  PCHECK(nr_written == nr_bytes); // considered a severe error
+  PCHECK(nr_written > -1);
+  PCHECK(Size(nr_written) == nr_bytes); // considered a severe error
 }
 
 auto UnixFileSystem::Read(FileHandle &handle, void *buffer, Size nr_bytes)
