@@ -38,14 +38,18 @@ public:
     }
   }
 
-  void Enqueue(T &&value) {
+  void Enqueue(T value) {
     auto *node = allocator_.AllocateData<Node>(NODE_SIZE);
     node->value = std::move(value);
     node->next = nullptr;
     auto *tail = tail_.load();
     while (!tail_.compare_exchange_weak(tail, node)) {
     }
-    tail->next = node;
+    if (tail != nullptr) {
+      tail->next = node;
+    } else {
+      head_ = node;
+    }
   }
 
   auto TryDequeue(T &item) -> bool {

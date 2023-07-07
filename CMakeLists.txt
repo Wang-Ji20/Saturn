@@ -9,6 +9,16 @@ set(ABSL_PROPAGATE_CXX_STD True)
 # -Wall -Werror
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
 
+# if define ASAN, use address sanitizer
+if(ASAN)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
+endif()
+
+# if define TSAN, use thread sanitizer
+if(TSAN)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread -fno-omit-frame-pointer")
+endif()
+
 # include path
 set(SATURN_INCLUDE_DIRECTORY ${PROJECT_SOURCE_DIR}/include)
 set(SATURN_THIRD_PARTY_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/third_party/abseil)
