@@ -17,20 +17,26 @@ TEST(ContainerTest, QueueTest) {
   auto &allocator = saturn::Allocator::GetDefaultAllocator();
   saturn::ConcurrentQueue<int> queue(allocator);
   // spawn 100 threads to enqueue
-  for (int i = 0; i < 500000; ++i) {
-    std::thread t([&queue, i]() {
-      queue.Enqueue(i);
+  std::vector<std::thread> threads;
+  for (int i = 0; i < 50000; ++i) {
+    threads.emplace_back([&queue, i]() {
+      for (int j = 0; j < 100; j++) {
+        queue.Enqueue(i);
+      }
     });
-    t.detach();
+  }
+  // wait all
+  for (auto &t : threads) {
+    t.join();
   }
   int iii = 0;
   std::thread t2([&queue, &iii]() {
-    for (int i = 0; i < 500000; ++i) {
+    for (int i = 0; i < 5000000; ++i) {
       if (queue.TryDequeue(i)) {
         iii++;
       }
     }
   });
   t2.join();
-  EXPECT_EQ(iii, 500000);
+  EXPECT_EQ(iii, 5000000);
 }
