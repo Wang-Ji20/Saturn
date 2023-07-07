@@ -27,12 +27,12 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: make check-tests
       - name: prepare ASAN
-        run: CXX=${{matrix.cxx}} cmake -B ${{github.workspace}}/asan-build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DASAN
+        run: CXX=${{matrix.cxx}} cmake -B ${{github.workspace}}/asan-build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DSANITIZER=ASAN
       - name: Test ASAN
         working-directory: ${{github.workspace}}/asan-build
         run: make check-tests
       - name: prepare TSAN
-        run: CXX=${{matrix.cxx}} cmake -B ${{github.workspace}}/tsan-build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DTSAN
+        run: CXX=${{matrix.cxx}} cmake -B ${{github.workspace}}/tsan-build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DSANITIZER=TSAN
       - name: Test TSAN
         working-directory: ${{github.workspace}}/tsan-build
         run: make check-tests

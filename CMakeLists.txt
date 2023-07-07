@@ -10,12 +10,14 @@ set(ABSL_PROPAGATE_CXX_STD True)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
 
 # if define ASAN, use address sanitizer
-if(ASAN)
+if(SANITIZER STREQUAL "ASAN")
+    message(STATUS "Using ASAN")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
 endif()
 
 # if define TSAN, use thread sanitizer
-if(TSAN)
+if(SANITIZER STREQUAL "TSAN")
+    message(STATUS "Using TSAN")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread -fno-omit-frame-pointer")
 endif()
 
