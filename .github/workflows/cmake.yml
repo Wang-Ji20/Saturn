@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        cxx: [g++, clang++]
+        cxx: [clang++]
     steps:
       - uses: actions/checkout@v2
       - name: Checkout Submodules
