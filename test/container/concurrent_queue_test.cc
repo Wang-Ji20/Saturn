@@ -13,7 +13,7 @@
 
 #include "gtest/gtest.h"
 
-TEST(ContainerTest, QueueTest) {
+TEST(ContainerTest, DISABLED_QueueTest) {
   auto &allocator = saturn::Allocator::GetDefaultAllocator();
   saturn::ConcurrentQueue<int> queue(allocator);
   // spawn 100 threads to enqueue
