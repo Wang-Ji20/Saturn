@@ -18,7 +18,7 @@ enum class BlockStatus : u8 {
   UNLOADED,
 };
 
-
-
+class BlockHandle {
+};
 
 } // namespace saturn

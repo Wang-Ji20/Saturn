@@ -35,7 +35,7 @@ enum class FileType {
 
 struct FileHandle {
 public:
-  FileHandle(FileSystem &fs, string path) : fs(fs), path(std::move(path)){};
+  FileHandle(FileSystem &fileSys, string path) : fs(fileSys), path(std::move(path)){};
   DISALLOW_COPY(FileHandle);
   virtual ~FileHandle() = default;
 
@@ -58,7 +58,7 @@ public:
 
   virtual void Close() = 0;
 
-public:
+
   FileSystem &fs;
   string path;
 };

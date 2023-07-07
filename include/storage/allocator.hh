@@ -11,11 +11,17 @@
 // this file contains the allocator for memory.
 // it serves as dependency injection for different malloc systems
 // and provides a unified interface for memory allocation.
+//
 // https://www.huy.rocks/everyday/01-05-2022-zig-where-data-is-stored-and-how-to-choose-an-allocator
+//
+// NB. We require all heap memory allocation go through this.
+// No Allocator, No dynamic memory allocation.
+//
 //===----------------------------------------------------------===
 
 #pragma once
 
+#include "common/logger.hh"
 #include "common/macro.hh"
 #include "common/optional.hh"
 #include "common/shared_ptr.hh"
@@ -68,12 +74,37 @@ public:
 
   DISALLOW_COPY_AND_MOVE(Allocator);
 
-  auto AllocateData(Size size) -> DatumPtr;
-  auto FreeData(DatumPtr pointer, Size size) -> void;
+  // the template is a syntax sugar for casting
+  // WARNING: template must not divide to declaration and definition
+  template <typename T = Datum>
+  auto AllocateData(Size size) -> T * {
+    DCHECK(size > 0);
+    DCHECK(size <= MAXIMUM_SIZE);
+    auto *pointer = malloc_(size);
+    DCHECK(pointer != nullptr);
+    return reinterpret_cast<T*>(pointer);
+  };
+
+  template <typename T = Datum>
+  auto FreeData(T *pointer, Size size) -> void {
+    DCHECK(pointer != nullptr);
+    free_(reinterpret_cast<Datum*>(pointer));
+  }
   auto ReallocateData(DatumPtr pointer, Size size) -> DatumPtr;
 
   auto Allocate(Size size) -> AllocatedData;
   auto Free(AllocatedData &data) -> void;
+
+  template <typename T, typename... Args>
+  auto make_unique(Args &&...args) -> unique_ptr<T> {
+    Size size = Size(sizeof(T));
+    T *ptr = AllocateData<T *>(size);
+    return std::move(
+        unique_ptr(new (ptr) T(std::forward<Args>(args)...), [&]() {
+          ptr->~T();
+          FreeData(ptr, size);
+        }));
+  }
 
   static auto GetDefaultAllocator() -> Allocator &;
   static auto GetDefaultAllocatorPointer() -> weak_ptr<Allocator>;

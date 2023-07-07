@@ -21,7 +21,7 @@ AllocatedData::AllocatedData(Allocator &allocator, DatumPtr pointer, Size size)
 };
 
 AllocatedData::AllocatedData(AllocatedData &&other) noexcept
-    : allocator_(std::move(other.allocator_)), pointer_(other.pointer_),
+    : allocator_(other.allocator_), pointer_(other.pointer_),
       size_(other.size_){};
 
 //===----------------------------------------------------===
@@ -41,22 +41,9 @@ Allocator::Allocator(MallocFunction mallocFunction,
 auto Allocator::Allocate(Size size) -> AllocatedData {
   DCHECK(size > 0);
   DCHECK(size <= MAXIMUM_SIZE);
-  auto pointer = malloc_(size);
+  auto *pointer = malloc_(size);
   DCHECK(pointer != nullptr);
   return AllocatedData{*this, pointer, size};
-};
-
-auto Allocator::AllocateData(Size size) -> DatumPtr {
-  DCHECK(size > 0);
-  DCHECK(size <= MAXIMUM_SIZE);
-  auto pointer = malloc_(size);
-  DCHECK(pointer != nullptr);
-  return pointer;
-};
-
-auto Allocator::FreeData(DatumPtr pointer, Size size) -> void {
-  DCHECK(pointer != nullptr);
-  free_(pointer);
 };
 
 auto Allocator::Free(AllocatedData &data) -> void {
@@ -68,7 +55,7 @@ auto Allocator::ReallocateData(DatumPtr pointer, Size size) -> DatumPtr {
   DCHECK(pointer != nullptr);
   DCHECK(size > 0);
   DCHECK(size <= MAXIMUM_SIZE);
-  auto newPointer = realloc_(pointer, size);
+  auto *newPointer = realloc_(pointer, size);
   DCHECK(newPointer != nullptr);
   return newPointer;
 }

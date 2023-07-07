@@ -1,2 +1,2 @@
 Diagnostics:
-  Suppress: ['modernize-use-trailing-return-type']
+  Suppress: ['*']

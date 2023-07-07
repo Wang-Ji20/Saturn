@@ -3,4 +3,4 @@ CompileFlags:
 
 Diagnostics:
   ClangTidy:
-    Add: modernize*
+    Add: [modernize*, abseil-*, bugprone-*, performance-*, portability-*, readability-*, concurrency-*]

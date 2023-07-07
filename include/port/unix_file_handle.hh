@@ -29,8 +29,8 @@ struct UnixFileHandle final : public FileHandle {
   static constexpr int INVALID_FD = -1;
 
 public:
-  UnixFileHandle(FileSystem &fs, string path, int fd, struct stat fileStat)
-      : FileHandle{fs, std::move(path)}, fd{fd}, fileStat{fileStat} {};
+  UnixFileHandle(FileSystem &fileSys, string path, int UNIXfd, struct stat fileStat)
+      : FileHandle{fileSys, std::move(path)}, fd{UNIXfd}, fileStat{fileStat} {};
   ~UnixFileHandle() final { UnixFileHandle::Close(); };
 
   int fd;

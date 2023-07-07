@@ -30,13 +30,35 @@ static auto CheckValidOpenFlags(OpenFlags flags) -> bool {
   if (is_create || is_truncate || is_append) {
     DCHECK(is_write);
   }
-  if (is_truncate) {
-    DCHECK(!is_create);
-  }
-  if (is_create) {
-    DCHECK(!is_truncate);
-  }
+  DCHECK(!(is_truncate && is_create));
   return true;
+}
+
+static auto OpenAdditionalFlags(OpenFlags flags) -> int {
+  int additionalFlags = 0;
+  if (ContainFlags(flags, OpenFlags::WRITE)) {
+    additionalFlags |= O_CLOEXEC;
+    if (ContainFlags(flags, OpenFlags::CREATE)) {
+      additionalFlags |= O_CREAT;
+    } else if (ContainFlags(flags, OpenFlags::CREATE_TRUNCATE)) {
+      additionalFlags |= O_TRUNC | O_CREAT;
+    }
+    if (ContainFlags(flags, OpenFlags::APPEND)) {
+      additionalFlags |= O_APPEND;
+    }
+  }
+
+  if (ContainFlags(flags, OpenFlags::DIRECT_IO)) {
+#if defined(__DARWIN__) || defined(__APPLE__) || defined(__OpenBSD__)
+    // OSX does not have O_DIRECT, instead we need to use fcntl afterwards to
+    // support direct IO
+    additionalFlags |= O_SYNC;
+#else
+    additionalFlags |= O_DIRECT | O_SYNC;
+#endif
+  }
+
+  return additionalFlags;
 }
 
 auto UnixFileSystem::Open(string path, OpenFlags flags)
@@ -54,33 +76,13 @@ auto UnixFileSystem::Open(string path, OpenFlags flags)
     CHECK(false) << "invalid open flags. must contain read or write";
   }
 
-  if (ContainFlags(flags, OpenFlags::WRITE)) {
-    openflags |= O_CLOEXEC;
-    if (ContainFlags(flags, OpenFlags::CREATE)) {
-      openflags |= O_CREAT;
-    } else if (ContainFlags(flags, OpenFlags::CREATE_TRUNCATE)) {
-      openflags |= O_TRUNC | O_CREAT;
-    }
-    if (ContainFlags(flags, OpenFlags::APPEND)) {
-      openflags |= O_APPEND;
-    }
-  }
+  openflags |= OpenAdditionalFlags(flags);
 
-  if (ContainFlags(flags, OpenFlags::DIRECT_IO)) {
-#if defined(__DARWIN__) || defined(__APPLE__) || defined(__OpenBSD__)
-    // OSX does not have O_DIRECT, instead we need to use fcntl afterwards to
-    // support direct IO
-    openflags |= O_SYNC;
-#else
-    openflags |= O_DIRECT | O_SYNC;
-#endif
-  }
-
-  int fd = open(path.c_str(), openflags, 0644);
-  PCHECK(fd > -1); // considered a severe error
+  int UNIXfd = open(path.c_str(), openflags, FILEMODE);
+  PCHECK(UNIXfd > -1); // considered a severe error
   struct stat fileStat;
-  PCHECK(fstat(fd, &fileStat) == 0); // considered a severe error
-  return make_unique<UnixFileHandle>(*this, path, fd, fileStat);
+  PCHECK(fstat(UNIXfd, &fileStat) == 0); // considered a severe error
+  return make_unique<UnixFileHandle>(*this, path, UNIXfd, fileStat);
 }
 
 void UnixFileSystem::Remove(string path) { PCHECK(unlink(path.c_str()) == 0); }
@@ -88,11 +90,11 @@ void UnixFileSystem::Remove(string path) { PCHECK(unlink(path.c_str()) == 0); }
 void UnixFileSystem::ReadAt(FileHandle &handle,
                             void *buffer,
                             Size nr_bytes,
-                            Offset offset) {
+                            Offset location) {
   DCHECK(buffer);
   DCHECK(nr_bytes > 0);
-  int fd = handle.Cast<UnixFileHandle>().fd;
-  int nr_read = pread(fd, buffer, nr_bytes, offset);
+  int UNIXfd = handle.Cast<UnixFileHandle>().fd;
+  i64 nr_read = pread(UNIXfd, buffer, nr_bytes, location);
   PCHECK(nr_read > -1);
   PCHECK(Size(nr_read) == nr_bytes); // considered a severe error
 }
@@ -100,11 +102,11 @@ void UnixFileSystem::ReadAt(FileHandle &handle,
 void UnixFileSystem::WriteAt(FileHandle &handle,
                              const void *buffer,
                              Size nr_bytes,
-                             Offset offset) {
+                             Offset location) {
   DCHECK(buffer);
   DCHECK(nr_bytes > 0);
-  int fd = handle.Cast<UnixFileHandle>().fd;
-  i64 nr_written = pwrite(fd, buffer, nr_bytes, offset);
+  int UNIXfd = handle.Cast<UnixFileHandle>().fd;
+  i64 nr_written = pwrite(UNIXfd, buffer, nr_bytes, location);
   PCHECK(nr_written > -1);
   PCHECK(Size(nr_written) == nr_bytes); // considered a severe error
 }
@@ -113,8 +115,8 @@ auto UnixFileSystem::Read(FileHandle &handle, void *buffer, Size nr_bytes)
     -> result<Size> {
   DCHECK(buffer);
   DCHECK(nr_bytes > 0);
-  int fd = handle.Cast<UnixFileHandle>().fd;
-  i64 nr_read = read(fd, buffer, nr_bytes);
+  int UNIXfd = handle.Cast<UnixFileHandle>().fd;
+  i64 nr_read = read(UNIXfd, buffer, nr_bytes);
   if (nr_read < 0) {
     PLOG(WARNING) << "read failed";
     return absl::ResourceExhaustedError("read failed");
@@ -127,8 +129,8 @@ auto UnixFileSystem::Write(FileHandle &handle,
                            Size nr_bytes) -> result<Size> {
   DCHECK(buffer);
   DCHECK(nr_bytes > 0);
-  int fd = handle.Cast<UnixFileHandle>().fd;
-  int nr_written = write(fd, buffer, nr_bytes);
+  int UNIXfd = handle.Cast<UnixFileHandle>().fd;
+  i64 nr_written = write(UNIXfd, buffer, nr_bytes);
   if (nr_written < 0) {
     PLOG(WARNING) << "write failed";
     return absl::ResourceExhaustedError("write failed");
@@ -175,30 +177,30 @@ auto UnixFileSystem::GetFileType(FileHandle &handle) -> FileType {
 }
 
 void UnixFileSystem::Truncate(FileHandle &handle, Size size) {
-  int fd = handle.Cast<UnixFileHandle>().fd;
-  PCHECK(ftruncate(fd, size) == 0);
+  int UNIXfd = handle.Cast<UnixFileHandle>().fd;
+  PCHECK(ftruncate(UNIXfd, size) == 0);
 }
 
-static void setFilePointer(int fd, Offset offset) {
-  i64 result = lseek(fd, offset, SEEK_SET);
+static void setFilePointer(int UNIXfd, Offset offset) {
+  i64 result = lseek(UNIXfd, offset, SEEK_SET);
   PCHECK(result >= 0);
   PCHECK(Size(result) == offset);
 }
 
-static auto getFilePointer(int fd) -> Offset {
-  auto offset = lseek(fd, 0, SEEK_CUR);
+static auto getFilePointer(int UNIXfd) -> Offset {
+  auto offset = lseek(UNIXfd, 0, SEEK_CUR);
   PCHECK(offset >= 0);
   return Offset(offset);
 }
 
-void UnixFileSystem::Seek(FileHandle &handle, Offset offset) {
-  int fd = handle.Cast<UnixFileHandle>().fd;
-  setFilePointer(fd, offset);
+void UnixFileSystem::Seek(FileHandle &handle, Offset location) {
+  int UNIXfd = handle.Cast<UnixFileHandle>().fd;
+  setFilePointer(UNIXfd, location);
 }
 
 auto UnixFileSystem::GetPosition(FileHandle &handle) -> Offset {
-  int fd = handle.Cast<UnixFileHandle>().fd;
-  return getFilePointer(fd);
+  int UNIXfd = handle.Cast<UnixFileHandle>().fd;
+  return getFilePointer(UNIXfd);
 }
 
 } // namespace saturn

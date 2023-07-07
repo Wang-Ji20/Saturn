@@ -25,22 +25,22 @@ namespace saturn {
 class Block : public FileBuffer {
 public:
   Block(Allocator &allocator,
-        BlockId id,
+        BlockId blockId,
         Size internalSize = Storage::BLOCK_ALLOC_SIZE)
-      : FileBuffer{allocator, FileBufferType::BLOCK, internalSize}, id{id} {};
-  Block(Block &source, BlockId id)
-      : FileBuffer{source, FileBufferType::BLOCK}, id{id} {}
+      : FileBuffer{allocator, FileBufferType::BLOCK, internalSize}, id{blockId} {};
+  Block(Block &source, BlockId blockId)
+      : FileBuffer{source, FileBufferType::BLOCK}, id{blockId} {}
 
-public:
+
   BlockId id;
 };
 
 class BlockPointer {
 public:
-  BlockPointer(BlockId id, Offset offset) : id(id), offset(offset) {}
+  BlockPointer(BlockId blockId, Offset offset) : id(blockId), offset(offset) {}
   BlockPointer() = default;
 
-public:
+
   BlockId id;
   Offset offset;
 };

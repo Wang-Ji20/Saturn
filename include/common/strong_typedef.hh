@@ -25,9 +25,9 @@
 #define STRONG_TYPEDEF_base(T, D)                                              \
   struct D {                                                                   \
     T t;                                                                       \
-    explicit constexpr D(const T t_) : t(t_){};                                \
+    explicit constexpr D(const T type_) : t(type_){};                          \
     D() = default;                                                             \
-    D(const D &t_) = default;                                                  \
+    D(const D &type_) = default;                                               \
     operator const T &() const { return t; }                                   \
     operator T &() { return t; }                                               \
   }
@@ -35,9 +35,9 @@
 #define STRONG_TYPEDEF_eq(T, D)                                                \
   struct D {                                                                   \
     T t;                                                                       \
-    explicit constexpr D(const T t_) : t(t_){};                                \
+    explicit constexpr D(const T type_) : t(type_){};                          \
     D() = default;                                                             \
-    D(const D &t_) = default;                                                  \
+    D(const D &type_) = default;                                               \
     operator const T &() const { return t; }                                   \
     operator T &() { return t; }                                               \
     auto operator==(const D &rhs) const -> bool { return t == rhs.t; }         \
@@ -46,9 +46,9 @@
 #define STRONG_TYPEDEF_ord(T, D)                                               \
   struct D {                                                                   \
     T t;                                                                       \
-    explicit constexpr D(const T t_) : t(t_){};                                \
+    explicit constexpr D(const T type_) : t(type_){};                          \
     D() = default;                                                             \
-    D(const D &t_) = default;                                                  \
+    D(const D &type_) = default;                                               \
     operator const T &() const { return t; }                                   \
     operator T &() { return t; }                                               \
     auto operator==(const D &rhs) const -> bool { return t == rhs.t; }         \
@@ -58,9 +58,9 @@
 #define STRONG_TYPEDEF_num(T, D)                                               \
   struct D {                                                                   \
     T t;                                                                       \
-    explicit constexpr D(const T t_) : t(t_){};                                \
+    explicit constexpr D(const T type_) : t(type_){};                          \
     D() = default;                                                             \
-    D(const D &t_) = default;                                                  \
+    D(const D &type_) = default;                                               \
     operator const T &() const { return t; }                                   \
     operator T &() { return t; }                                               \
     auto operator==(const D &rhs) const -> bool { return t == rhs.t; }         \
@@ -70,4 +70,4 @@
     auto operator*(const D &rhs) const -> D { return D(t * rhs.t); }           \
     auto operator/(const D &rhs) const -> D { return D(t / rhs.t); }           \
   };                                                                           \
-  constexpr auto operator""_##D(unsigned long long x)->D { return D(x); }
+  constexpr auto operator""_##D(unsigned long long val)->D { return D(val); }

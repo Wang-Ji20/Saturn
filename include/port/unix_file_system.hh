@@ -18,6 +18,8 @@ namespace saturn {
 
 class UnixFileSystem final : public FileSystem {
 public:
+  static constexpr int FILEMODE = 0644;
+
   ~UnixFileSystem() final = default;
   auto Open(string path, OpenFlags flags) -> unique_ptr<FileHandle> final;
   void Remove(string path) final;

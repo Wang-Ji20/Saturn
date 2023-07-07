@@ -19,7 +19,7 @@ FileBuffer::FileBuffer(Allocator &allocator,
                        Size requestSize)
     : allocator{allocator}, type{type}, limitSize{requestSize} {
   Init();
-  if (requestSize) {
+  if (requestSize != 0U) {
     Resize(requestSize);
   }
 }
@@ -30,27 +30,25 @@ void FileBuffer::Init() {
 }
 
 FileBuffer::FileBuffer(FileBuffer &source, FileBufferType type)
-    : allocator{source.allocator}, type{type}, limitSize{source.limitSize} {
-  buffer = source.buffer;
-  internalBuffer = source.internalBuffer;
-  internalSize = source.internalSize;
-  limitSize = source.limitSize;
+    : allocator{source.allocator}, type{type}, buffer(source.buffer),
+      limitSize{source.limitSize}, internalBuffer(source.internalBuffer),
+      internalSize(source.internalSize) {
   source.Init();
 }
 
 FileBuffer::~FileBuffer() {
-  if (!internalBuffer) {
+  if (internalBuffer == nullptr) {
     return;
   }
   allocator.FreeData(internalBuffer, internalSize);
 }
 
-void FileBuffer::Read(FileHandle &handle, Offset location) {
+void FileBuffer::Read(FileHandle &handle, Offset location) const {
   DCHECK(type != FileBufferType::TINY_BUFFER);
   handle.ReadAt(buffer, limitSize, location);
 }
 
-void FileBuffer::Write(FileHandle &handle, Offset location) {
+void FileBuffer::Write(FileHandle &handle, Offset location) const {
   DCHECK(type != FileBufferType::TINY_BUFFER);
   handle.WriteAt(buffer, limitSize, location);
 }
@@ -68,7 +66,7 @@ struct BufferMemoryRequirement {
 
 static auto CalculateMemory(Size reqSize, FileBufferType type)
     -> BufferMemoryRequirement {
-  BufferMemoryRequirement result;
+  BufferMemoryRequirement result{};
   if (type == FileBufferType::TINY_BUFFER) {
     result.header = 0_Size;
     result.content = reqSize;
@@ -82,12 +80,12 @@ static auto CalculateMemory(Size reqSize, FileBufferType type)
 
 void FileBuffer::ReallocBuffer(Size newSize) {
   DatumPtr newBuffer = nullptr;
-  if (internalBuffer) {
+  if (internalBuffer != nullptr) {
     newBuffer = allocator.ReallocateData(internalBuffer, newSize);
   } else {
     newBuffer = allocator.AllocateData(newSize);
   }
-  if (!newBuffer) {
+  if (newBuffer == nullptr) {
     LOG(FATAL) << "Failed to allocate buffer of size " << newSize;
   }
   internalBuffer = newBuffer;

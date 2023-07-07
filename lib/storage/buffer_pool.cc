@@ -8,8 +8,20 @@
 //===------------------------------------------===
 
 #include "storage/buffer_pool.hh"
+#include "common/logger.hh"
 
 namespace saturn {
+
+void BufferPoolReservation::Resize(Size newSize) {
+  auto result = pool.IncreaseUsedMemory(newSize - size);
+  CHECK(result.ok()) << result.message();
+  size = newSize;
+}
+
+void BufferPoolReservation::Merge(BufferPoolReservation &&other) {
+  size += other.size;
+  other.size = 0_Size;
+}
 
 auto BufferPool::IncreaseUsedMemory(Size size) -> Status {
   // https://en.cppreference.com/w/cpp/atomic/atomic/compare_exchange

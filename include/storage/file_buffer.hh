@@ -43,9 +43,9 @@ public:
   Size limitSize; // max size user can write, may be slighly bigger than
                   // requested, because of alignment
 
-public:
-  void Read(FileHandle &handle, Offset location);
-  void Write(FileHandle &handle, Offset location);
+
+  void Read(FileHandle &handle, Offset location) const;
+  void Write(FileHandle &handle, Offset location) const;
   void Clear();
   void Resize(Size newSize);
 
