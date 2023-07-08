@@ -6,8 +6,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(ABSL_PROPAGATE_CXX_STD True)
 
-# -Wall -Werror
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
 
 # if define ASAN, use address sanitizer
 if(SANITIZER STREQUAL "ASAN")

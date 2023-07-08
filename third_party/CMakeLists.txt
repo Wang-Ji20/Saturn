@@ -1,6 +1,9 @@
 add_subdirectory(abseil)
 add_subdirectory(googletest)
 
+# third part, not my business
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w")
+
 set(DEPS_SUBMODULES abseil googletest)
 foreach(submodule IN LISTS DEPS_SUBMODULES)
     file(GLOB SUBMOD_CONTENTS ${submodule})
