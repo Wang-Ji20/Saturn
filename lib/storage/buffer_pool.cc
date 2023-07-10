@@ -23,6 +23,24 @@ void BufferPoolReservation::Merge(BufferPoolReservation &&other) {
   other.size = 0_Size;
 }
 
+auto BufferEvictionNode::CanUnload(BlockHandle &handle) -> bool {
+  if (timestamp_ != handle.timestamp_.load()) {
+    return false;
+  }
+  return handle.CanUnload();
+}
+
+auto BufferEvictionNode::TryGetBlockHandle() -> shared_ptr<BlockHandle> {
+  auto handle = handle_.lock();
+  if (handle == nullptr) {
+    return nullptr;
+  }
+  if (!CanUnload(*handle)) {
+    return nullptr;
+  }
+  return handle;
+}
+
 auto BufferPool::IncreaseUsedMemory(Size size) -> Status {
   // https://en.cppreference.com/w/cpp/atomic/atomic/compare_exchange
   auto usedMemory = usedMemory_.load();
@@ -42,6 +60,32 @@ auto BufferPool::SetMaxMemory(Size size) -> Status {
     }
   }
   return absl::OkStatus();
+}
+
+auto BufferPool::EvictBlocks(Offset extraMemory, Size memoryLimit) -> Eviction {
+  BufferEvictionNode node;
+  BufferPoolReservation resMem{*this, Size(extraMemory)};
+  while (usedMemory_.load() > memoryLimit) {
+    if (evictionQueue_->TryDequeue(node)) {
+      resMem.Resize(0_Size);
+      return {false,
+              std::move(resMem),
+              absl::ResourceExhaustedError("no more memory")};
+    }
+    auto handle = node.TryGetBlockHandle();
+    if (handle == nullptr) {
+      continue;
+    }
+    scoped_lock<mutex> lock{handle->lock_};
+    if (!node.CanUnload(*handle)) {
+      continue;
+    }
+    if (handle->buffer_->GetAllocationSize() == extraMemory) {
+      return {true, std::move(resMem), std::move(handle->buffer_)};
+    }
+    handle->Unload();
+  }
+  return {true, std::move(resMem), absl::NotFoundError("no exact size buffer")};
 }
 
 } // namespace saturn

@@ -40,7 +40,6 @@ public:
   BlockPointer(BlockId blockId, Offset offset) : id(blockId), offset(offset) {}
   BlockPointer() = default;
 
-
   BlockId id;
   Offset offset;
 };

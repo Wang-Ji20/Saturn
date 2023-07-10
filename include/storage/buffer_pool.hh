@@ -23,38 +23,16 @@
 
 namespace saturn {
 
-class BufferPool;
-
-struct BufferPoolReservation {
-  Size size {0};
-  BufferPool& pool;
-
-  explicit BufferPoolReservation(BufferPool& bufferPool): pool {bufferPool} {}
-  BufferPoolReservation(BufferPool& bufferPool, Size size) : pool {bufferPool} {
-    Resize(size);
-  }
-  DISALLOW_COPY(BufferPoolReservation);
-  BufferPoolReservation(BufferPoolReservation&& other) noexcept :
-  pool {other.pool} {
-    size = other.size;
-    other.size = 0_Size;
-  }
-  auto operator=(BufferPoolReservation&& other) noexcept -> BufferPoolReservation& {
-    size = other.size;
-    other.size = 0_Size;
-    return *this;
-  }
-
-  ~BufferPoolReservation() {
-    Resize(0_Size);
-  };
-
-  void Resize(Size newSize);
-  void Merge(BufferPoolReservation&& other);
-};
-
 struct BufferEvictionNode {
+  BufferEvictionNode() = default;
+  BufferEvictionNode(weak_ptr<BlockHandle> handle, Size timestamp)
+      : handle_{std::move(handle)}, timestamp_{timestamp} {}
 
+  weak_ptr<BlockHandle> handle_;
+  Size timestamp_;
+
+  auto CanUnload(BlockHandle& handle) -> bool;
+  auto TryGetBlockHandle() -> shared_ptr<BlockHandle>;
 };
 
 class BufferPool {
@@ -62,6 +40,8 @@ public:
   explicit BufferPool(Size maxSize) :
       maxMemory_{maxSize}
       {}
+  DISALLOW_COPY(BufferPool);
+
   inline auto GetMaxMemory() -> Size { return Size(maxMemory_); }
   inline auto GetUsedMemory() -> Size { return Size(usedMemory_); }
   auto IncreaseUsedMemory(Size size) -> Status;
@@ -73,7 +53,7 @@ protected:
     BufferPoolReservation reservation;
     result<unique_ptr<FileBuffer>> reuseBuffer;
   };
-  virtual auto EvictBlocks (Size extraMemory, Size memoryLimit) -> Eviction;
+  auto EvictBlocks(Offset extraMemory, Size memoryLimit) -> Eviction;
 
   // garbage cleaning routines.
   void GCQueue();

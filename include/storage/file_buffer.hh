@@ -49,6 +49,8 @@ public:
   void Clear();
   void Resize(Size newSize);
 
+  [[nodiscard]] auto GetAllocationSize() const -> Size { return internalSize; }
+
 protected:
   DatumPtr internalBuffer;
   Size internalSize;
