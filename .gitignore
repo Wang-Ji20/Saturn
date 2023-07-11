@@ -31,6 +31,10 @@
 *.out
 *.app
 
+# directories
 build
 local
 .cache
+
+# MacOS file
+.DS_Store

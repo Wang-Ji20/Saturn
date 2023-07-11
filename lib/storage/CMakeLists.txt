@@ -7,16 +7,7 @@ add_library(
     block.cc
     file_buffer.cc
     buffer_pool.cc
-)
-
-set(
-    STORAGE_LIBS
-    storage_allocator
-)
-
-target_link_libraries(
-    storage
-    ${STORAGE_LIBS}
+    block_handle.cc
 )
 
 set(

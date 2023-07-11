@@ -20,6 +20,7 @@
 namespace saturn {
 
 class BufferPool;
+class BufferHandle;
 
 struct BufferPoolReservation {
   Size size {0};
@@ -60,8 +61,8 @@ class BlockHandle {
   friend struct BufferPoolReservation;
   friend class BufferPool;
 private:
-  static auto Load(shared_ptr<BlockHandle> &handle, unique_ptr<FileBuffer> buffer = nullptr);
-  auto CanUnload() -> bool;
+  static auto Load(shared_ptr<BlockHandle> &handle, unique_ptr<FileBuffer> buffer = nullptr) -> BufferHandle;
+  static auto CanUnload() -> bool;
   void Unload();
 
   mutable mutex lock_;

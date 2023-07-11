@@ -15,9 +15,15 @@
 
 #include "common/macro.hh"
 #include "common/type.hh"
+#include "common/mutex.hh"
+
+#include "container/unordered_map.hh"
+
 #include "storage/block.hh"
 
 namespace saturn {
+
+class BlockHandle;
 
 class BlockManager {
 public:
@@ -52,6 +58,10 @@ public:
   // get the pointer of the block.
   //===----------------------------------------------------===
   virtual auto pointer(Block block) -> DatumPtr = 0;
+private:
+  mutable mutex blockLock_;
+  unordered_map<Block, weak_ptr<BlockHandle>> blockMap_;
+  unordered_map<Block, shared_ptr<BlockHandle>> metaBlockMap_;
 };
 
 } // namespace saturn

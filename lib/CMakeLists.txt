@@ -6,14 +6,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
 
 add_library(
     saturn
-    STATIC
+    SHARED
     ${ALL_OBJECT_FILES}
-)
-
-set(
-    SATURN_LIBS
-    port
-    storage
 )
 
 set(
@@ -29,7 +23,6 @@ set(
 
 target_link_libraries(
     saturn
-    ${SATURN_LIBS}
     ${THIRD_PARTY_DEPENDENCIES}
 )
 
