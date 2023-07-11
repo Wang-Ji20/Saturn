@@ -6,7 +6,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
 
 add_library(
     saturn
-    SHARED
+    STATIC
     ${ALL_OBJECT_FILES}
 )
 
