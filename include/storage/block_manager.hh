@@ -14,8 +14,8 @@
 #pragma once
 
 #include "common/macro.hh"
-#include "common/type.hh"
 #include "common/mutex.hh"
+#include "common/type.hh"
 
 #include "container/unordered_map.hh"
 
@@ -24,44 +24,47 @@
 namespace saturn {
 
 class BlockHandle;
+class BufferManager;
 
 class BlockManager {
 public:
   virtual ~BlockManager() = default;
+  explicit BlockManager(BufferManager &bufferManager)
+      : bufferManager_(bufferManager) {}
 
+  BufferManager &bufferManager_;
   // essential methods
-  DISALLOW_COPY(BlockManager);
-  BlockManager(BlockManager &&) noexcept;
-  auto operator=(BlockManager &&) noexcept -> BlockManager &;
+  DISALLOW_COPY_AND_MOVE(BlockManager);
 
-  //===----------------------------------------------------===
-  // allocate a block of memory with the given size.
-  //===----------------------------------------------------===
-  virtual auto allocate(Size size) -> Block = 0;
+  // convert another kind of file buffer to block
+  // no ownership transfer, just borrowing (because block don't neccesarilly in memory)
+  virtual auto ConvertBlock(BlockId blockId, FileBuffer &source) -> unique_ptr<Block> = 0;
 
-  //===----------------------------------------------------===
-  // free the block of memory.
-  //===----------------------------------------------------===
-  virtual auto free(Block block) -> void = 0;
+  // create a new block, can reuse old file buffer.
+  // source can be nullptr, we allocate new memory at that time.
+  // so use raw pointer here.
+  virtual auto CreateBlock(BlockId blockId, FileBuffer *source) -> unique_ptr<Block> = 0;
 
-  //===----------------------------------------------------===
-  // resize the block of memory.
-  //===----------------------------------------------------===
-  virtual auto resize(Block block, Size size) -> Block = 0;
+  virtual auto GetFreeBlockId() -> BlockId = 0;
+  virtual auto IsRootBlock(BlockId blockId) -> bool = 0;
+  virtual void MarkBlockAsFree(BlockId blockId) = 0;
+  virtual auto MarkBlockAsModified(BlockId blockId) -> bool = 0;
+  virtual void IncreaseBlockReferenceCount(BlockId blockId) = 0;
+  virtual auto GetMetaBlock() -> BlockId = 0;
+  virtual void Read(Block &block) = 0;
+  virtual void Write(FileBuffer &block, BlockId blockId) = 0;
+  virtual void Write(Block &block) { Write(block, block.id); };
 
-  //===----------------------------------------------------===
-  // get the size of the block.
-  //===----------------------------------------------------===
-  virtual auto size(Block block) -> Size = 0;
+  virtual auto CountBlocks() -> Size = 0;
+  virtual auto CountFreeBlocks() -> Size = 0;
 
-  //===----------------------------------------------------===
-  // get the pointer of the block.
-  //===----------------------------------------------------===
-  virtual auto pointer(Block block) -> DatumPtr = 0;
+  auto RegisterBlock(BlockId blockId, bool isMetaBlock = false) -> shared_ptr<BlockHandle>;
+  void UnregisterBlock(BlockId blockId, bool canDestroy);
+
 private:
   mutable mutex blockLock_;
-  unordered_map<Block, weak_ptr<BlockHandle>> blockMap_;
-  unordered_map<Block, shared_ptr<BlockHandle>> metaBlockMap_;
+  unordered_map<BlockId, weak_ptr<BlockHandle>> blockMap_;
+  unordered_map<BlockId, shared_ptr<BlockHandle>> metaBlockMap_;
 };
 
 } // namespace saturn

@@ -21,7 +21,8 @@ AllocatedData::AllocatedData(Allocator &allocator, DatumPtr pointer, Size size)
 };
 
 AllocatedData::AllocatedData(AllocatedData &&other) noexcept
-    : allocator_(other.allocator_), pointer_(other.pointer_),
+    : allocator_(other.allocator_),
+      pointer_(other.pointer_),
       size_(other.size_){};
 
 //===----------------------------------------------------===
@@ -31,7 +32,8 @@ AllocatedData::AllocatedData(AllocatedData &&other) noexcept
 Allocator::Allocator(MallocFunction mallocFunction,
                      FreeFunction freeFunction,
                      ReallocFunction reallocFunction)
-    : malloc_(std::move(mallocFunction)), free_(std::move(freeFunction)),
+    : malloc_(std::move(mallocFunction)),
+      free_(std::move(freeFunction)),
       realloc_(std::move(reallocFunction)) {
   DCHECK(malloc_ != nullptr);
   DCHECK(free_ != nullptr);

@@ -30,8 +30,11 @@ void FileBuffer::Init() {
 }
 
 FileBuffer::FileBuffer(FileBuffer &source, FileBufferType type)
-    : allocator{source.allocator}, type{type}, buffer(source.buffer),
-      limitSize{source.limitSize}, internalBuffer(source.internalBuffer),
+    : allocator{source.allocator},
+      type{type},
+      buffer(source.buffer),
+      limitSize{source.limitSize},
+      internalBuffer(source.internalBuffer),
       internalSize(source.internalSize) {
   source.Init();
 }

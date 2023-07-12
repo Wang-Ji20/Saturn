@@ -15,6 +15,11 @@
 
 namespace saturn {
 
-class BufferManager {};
+class BufferPool;
+
+class BufferManager {
+public:
+  virtual auto GetBufferPool() -> BufferPool & = 0;
+};
 
 } // namespace saturn
