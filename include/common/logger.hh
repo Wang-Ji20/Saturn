@@ -15,3 +15,9 @@
 
 #include "absl/log/check.h"
 #include "absl/log/log.h"
+
+#define SaturnUnreachable()                                                    \
+  do {                                                                         \
+    CHECK(FATAL) << "Unreachable code reached.";                               \
+    __builtin_unreachable();                                                   \
+  } while (0)
