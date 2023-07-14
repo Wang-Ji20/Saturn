@@ -9,8 +9,4 @@
 
 #include "storage/single_file_block_manager.hh"
 
-namespace saturn {
-
-
-
-} // namespace saturn
+namespace saturn {} // namespace saturn

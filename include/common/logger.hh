@@ -18,6 +18,6 @@
 
 #define SaturnUnreachable()                                                    \
   do {                                                                         \
-    CHECK(FATAL) << "Unreachable code reached.";                               \
+    CHECK(false);                                                              \
     __builtin_unreachable();                                                   \
   } while (0)

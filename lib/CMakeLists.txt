@@ -20,6 +20,7 @@ set(
     absl::optional
     absl::statusor
     absl::status
+    yyjson
 )
 
 target_link_libraries(

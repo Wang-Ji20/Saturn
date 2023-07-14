@@ -7,6 +7,16 @@
 //
 //===------------------------------------------===
 
+//===------------------------------------------------===
+// The serializer interface is only used to show the
+// layout of data. It is not responsible for the
+// specific formatting of the data.
+//
+// Such thing is left to the concrete serializer, and
+// caller should aware what type of serializer is used in
+// storage module.
+//===------------------------------------------------===
+
 #pragma once
 
 #include "common/string.hh"
@@ -18,11 +28,8 @@
 namespace saturn {
 
 class Serializer {
-  friend class Writer;
-protected:
-  virtual void onSerializeBegin() {}
-  virtual void onSerializeEnd() {}
-
+  friend struct Writer;
+public:
   virtual void OnObjectBegin() {}
   virtual void OnObjectEnd() {}
 
@@ -34,19 +41,15 @@ protected:
   //
   // class xxx {
   //
-  // template <typename T>
-  // friend void SaturnWriteValue(string& serializer, const T& value) {
+  // template <typename Ser, typename T>
+  // friend void SaturnWriteValue(Ser& serializer, const T& value) {
   //    put the serialization result into serializer
   // }
   //
   // };
   //
   template <typename T> void WriteValue(const T &value) {
-    string serializedValue;
-    SaturnWriteValue(serializedValue, value);
-    OnObjectBegin();
-    WriteValue(serializedValue);
-    OnObjectEnd();
+    SaturnWriteValue(*this, value);
   }
 
   /// write a unique_ptr
@@ -77,8 +80,14 @@ protected:
 
   template <typename K, typename V>
   void WriteValue(const std::pair<K, V> &pair) {
+    OnPairBegin();
+    OnPairKeyBegin();
     WriteValue(pair.first);
+    OnPairKeyEnd();
+    OnPairValueBegin();
     WriteValue(pair.second);
+    OnPairValueEnd();
+    OnPairEnd();
   }
 
   //===------------------------------------------------===
@@ -153,7 +162,7 @@ protected:
   //===------------------------------------------------===
 
 	virtual void WriteValue(const string &value);
-	virtual void WriteValue(const char *value);
+	virtual void WriteValue(const char *value) = 0;
   virtual void WriteNull() = 0;
 	virtual void WriteValue(bool value) = 0;
 	virtual void WriteValue(u8 value) = 0;
@@ -166,8 +175,6 @@ protected:
 	virtual void WriteValue(i64 value) = 0;
 	virtual void WriteValue(float value) = 0;
 	virtual void WriteValue(double value) = 0;
-
-  std::vector<u8> buffer;
 };
 
 } // namespace saturn

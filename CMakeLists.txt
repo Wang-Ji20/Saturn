@@ -21,7 +21,7 @@ endif()
 
 # include path
 set(SATURN_INCLUDE_DIRECTORY ${PROJECT_SOURCE_DIR}/include)
-set(SATURN_THIRD_PARTY_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/third_party/abseil)
+set(SATURN_THIRD_PARTY_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/third_party/abseil ${PROJECT_SOURCE_DIR}/third_party/yyjson/src)
 include_directories(${SATURN_INCLUDE_DIRECTORY} ${SATURN_THIRD_PARTY_INCLUDE_DIRECTORIES})
 
 add_subdirectory(lib)

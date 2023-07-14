@@ -9,72 +9,127 @@
 
 #pragma once
 
+#include "common/logger.hh"
 #include "common/serializer/serializer.hh"
+
+#include "yyjson.h"
+
+#include <vector>
 
 namespace saturn {
 
 class JsonSerializer : public Serializer {
-protected:
-  void onSerializeBegin() override;
-  void onSerializeEnd() override;
+  //===------------------------------------------------===
+  // public interface
+  //===------------------------------------------------===
+public:
+  auto GetRoot() -> yyjson_mut_val * {
+    DCHECK(stack.size() == 1);
+    return stack.front();
+  }
 
-  void OnObjectBegin() override;
-  void OnObjectEnd() override;
+  template <typename T>
+  static auto Serialize(const T &value,
+                        yyjson_mut_doc *doc,
+                        bool pretty = true,
+                        bool skipNull = false,
+                        bool skipEmpty = false) -> yyjson_mut_val * {
+    JsonSerializer serializer(doc, pretty, skipNull, skipEmpty);
+    serializer.WriteValue(value);
+    return serializer.GetRoot();
+  }
+
+  template <typename T>
+  static auto ToString(const T &value,
+                       bool pretty = true,
+                       bool skipNull = false,
+                       bool skipEmpty = false) -> std::string {
+    auto *doc = yyjson_mut_doc_new(nullptr);
+    auto *root = Serialize(value, doc, pretty, skipNull, skipEmpty);
+    auto *str =
+        yyjson_mut_write(doc, pretty ? YYJSON_WRITE_PRETTY : 0, nullptr);
+    auto result = std::string(str);
+    yyjson_mut_doc_free(doc);
+    return result;
+  }
+
+  //===------------------------------------------------===
+  // Internals
+  //===------------------------------------------------===
+
+private:
+  explicit JsonSerializer(yyjson_mut_doc *doc,
+                          bool pretty = true,
+                          bool skipNull = false,
+                          bool skipEmpty = false)
+      : doc(doc),
+        stack{yyjson_mut_obj(doc)},
+        pretty_(pretty),
+        skipNull_(skipNull),
+        skipEmpty_(skipEmpty) {}
+
+  yyjson_mut_doc *doc;
+  yyjson_mut_val *current_tag;
+  std::vector<yyjson_mut_val *> stack;
+
+  bool pretty_ = true;
+  bool skipNull_ = false;
+  bool skipEmpty_ = false;
+
+  inline auto GetCurrent() -> yyjson_mut_val * { return stack.back(); }
+
+  void PushValue(yyjson_mut_val *val);
+  void PruneEmptyObject(yyjson_mut_val *obj);
+
+  //===------------------------------------------------===
+  // Serializer interface
+  //===------------------------------------------------===
+
+public:
+  void SetTag(const char *tag);
+
+  void OnObjectBegin() final;
+  void OnObjectEnd() final;
 
   //===------------------------------------------------===
   // write a pair
   //===------------------------------------------------===
-  void OnPairBegin() override;
-  void OnPairKeyBegin() override;
-  void OnPairKeyEnd() override;
-  void OnPairValueBegin() override;
-  void OnPairValueEnd() override;
-  void OnPairEnd() override;
+  void OnPairBegin() final;
+  void OnPairKeyBegin() final;
+  void OnPairValueBegin() final;
+  void OnPairEnd() final;
 
   //===------------------------------------------------===
   // write a vector
   //===------------------------------------------------===
-  void OnVectorBegin(Size size) override;
-  void OnVectorEnd(Size size) override;
-  void OnVectorItemBegin(Size maxSize, Offset curSize) override;
-  void OnVectorItemEnd(Size maxSize, Offset curSize) override;
+  void OnVectorBegin(Size size) final;
+  void OnVectorEnd(Size size) final;
 
   //===------------------------------------------------===
   // write an unordered map
   //===------------------------------------------------===
-  void OnUnorderedMapBegin(Size size) override;
-  void OnUnorderedMapEnd(Size size) override;
-  void OnUnorderedMapItemBegin() override;
-  void OnUnorderedMapItemEnd() override;
-  void OnUnorderedMapKeyBegin() override;
-  void OnUnorderedMapKeyEnd() override;
-  void OnUnorderedMapValueBegin() override;
-  void OnUnorderedMapValueEnd() override;
-
-  //===------------------------------------------------===
-  // write a set
-  //===------------------------------------------------===
-  void OnSetBegin(Size size) override;
-  void OnSetEnd(Size size) override;
-  void OnSetItemBegin() override;
-  void OnSetItemEnd() override;
+  void OnUnorderedMapBegin(Size size) final;
+  void OnUnorderedMapEnd(Size size) final;
+  void OnUnorderedMapItemBegin() final;
+  void OnUnorderedMapItemEnd() final;
+  void OnUnorderedMapKeyBegin() final;
+  void OnUnorderedMapValueBegin() final;
 
   // https://stackoverflow.com/questions/3678197/virtual-function-implemented-in-base-class-not-being-found-by-compiler
   using Serializer::WriteValue;
-  void WriteValue(const string &value) override;
-	void WriteValue(const char *value) override;
-  void WriteNull() override;
-  void WriteValue(bool value) override;
-  void WriteValue(u8 value) override;
-  void WriteValue(i8 value) override;
-  void WriteValue(u16 value) override;
-  void WriteValue(i16 value) override;
-  void WriteValue(u32 value) override;
-  void WriteValue(i32 value) override;
-  void WriteValue(u64 value) override;
-  void WriteValue(i64 value) override;
-  void WriteValue(float value) override;
-  void WriteValue(double value) override;
+  void WriteValue(const char *value) final;
+  void WriteNull() final;
+  void WriteValue(bool value) final;
+  void WriteValue(u8 value) final;
+  void WriteValue(i8 value) final;
+  void WriteValue(u16 value) final;
+  void WriteValue(i16 value) final;
+  void WriteValue(u32 value) final;
+  void WriteValue(i32 value) final;
+  void WriteValue(u64 value) final;
+  void WriteValue(i64 value) final;
+  void WriteValue(float value) final;
+  void WriteValue(double value) final;
 };
 
 } // namespace saturn

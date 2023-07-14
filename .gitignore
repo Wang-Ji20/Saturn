@@ -38,3 +38,7 @@ local
 
 # MacOS file
 .DS_Store
+
+# ide file
+.vscode
+.clion

@@ -11,16 +11,7 @@
 
 namespace saturn {
 
-void Serializer::WriteValue(const string &value) {
-  OnObjectBegin();
-  buffer.insert(buffer.end(), value.begin(), value.end());
-  OnObjectEnd();
-}
-
-void Serializer::WriteValue(const char *value) {
-  OnObjectBegin();
-  buffer.insert(buffer.end(), value, value + strlen(value));
-  OnObjectEnd();
-}
+/// a vtable anchor
+void Serializer::WriteValue(const string &value) { WriteValue(value.c_str()); }
 
 } // namespace saturn
