@@ -12,15 +12,17 @@
 
 #include <string>
 #include <utility>
+#include <iostream>
 
 struct SomeComplexStruct {
   int x;
   int y;
 };
 
-TEST(JsonSerializerTest, DISABLED_Basic) {
+TEST(JsonSerializerTest, Basic) {
   using namespace saturn;
   auto p = std::make_pair("hello", "world");
   auto result = JsonSerializer::ToString(p);
-  EXPECT_EQ(result, "\"hello\"\n");
+  std::cerr << result << '\n';
+  ASSERT_EQ(result, "[\n    {\n        \"key\": \"hello\",\n        \"value\": \"world\"\n    }\n]");
 }

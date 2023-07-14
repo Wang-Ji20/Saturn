@@ -48,6 +48,7 @@ public:
     auto *root = Serialize(value, doc, pretty, skipNull, skipEmpty);
     auto *str =
         yyjson_mut_write(doc, pretty ? YYJSON_WRITE_PRETTY : 0, nullptr);
+    DCHECK(str != nullptr) << "malformed json\n";
     auto result = std::string(str);
     yyjson_mut_doc_free(doc);
     return result;
@@ -63,10 +64,12 @@ private:
                           bool skipNull = false,
                           bool skipEmpty = false)
       : doc(doc),
-        stack{yyjson_mut_obj(doc)},
+        stack{yyjson_mut_arr(doc)},
         pretty_(pretty),
         skipNull_(skipNull),
-        skipEmpty_(skipEmpty) {}
+        skipEmpty_(skipEmpty) {
+    yyjson_mut_doc_set_root(doc, GetCurrent());
+  }
 
   yyjson_mut_doc *doc;
   yyjson_mut_val *current_tag;

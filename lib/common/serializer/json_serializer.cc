@@ -15,8 +15,11 @@ void JsonSerializer::PushValue(yyjson_mut_val *val) {
   auto *current = GetCurrent();
   if (yyjson_mut_is_arr(current)) {
     yyjson_mut_arr_append(current, val);
-  } else if (yyjson_mut_is_obj(current)) {
+    return;
+  }
+  if (yyjson_mut_is_obj(current)) {
     yyjson_mut_obj_add(current, current_tag, val);
+    return;
   }
   SaturnUnreachable();
 }

@@ -99,7 +99,7 @@ public:
   virtual void OnVectorItemEnd(Size maxSize, Offset curSize) {}
 
   template <typename T> void WriteValue(const std::vector<T> &vec) {
-    const Size vecSize = vec.size();
+    const Size vecSize = Size(vec.size());
     OnVectorBegin(vecSize);
     for (Offset i = 0_Offset; i < vecSize; ++i) {
       OnVectorItemBegin(vecSize, i);
