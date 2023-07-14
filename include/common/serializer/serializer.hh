@@ -30,6 +30,8 @@ namespace saturn {
 class Serializer {
   friend struct Writer;
 public:
+  virtual void SetTag(const char *tag) = 0;
+
   virtual void OnObjectBegin() {}
   virtual void OnObjectEnd() {}
 
@@ -41,8 +43,8 @@ public:
   //
   // class xxx {
   //
-  // template <typename Ser, typename T>
-  // friend void SaturnWriteValue(Ser& serializer, const T& value) {
+  // template <typename Ser>
+  // friend void SaturnWriteValue(Ser& serializer, const xxx& value) {
   //    put the serialization result into serializer
   // }
   //
