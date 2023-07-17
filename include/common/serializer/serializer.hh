@@ -29,15 +29,29 @@ namespace saturn {
 
 class Serializer {
   friend struct Writer;
+
 public:
   virtual void SetTag(const char *tag) = 0;
+
+  /// write properties
+  /// syntax sugar for "key" : "value"
+  template <typename T> void WriteProperty(const char *key, const T &value) {
+    SetTag(key);
+    if constexpr (std::enable_if<!std::is_enum<T>::value>::value) {
+      WriteValue(value);
+      return;
+    }
+    WriteValue(static_cast<typename std::underlying_type<T>::type>(value));
+  }
 
   virtual void OnObjectBegin() {}
   virtual void OnObjectEnd() {}
 
   /// write a generic value
-  // Friend Template ADL Extension
+  // Friend Template Argument-Dependent Lookup Extension
+  //
   // Usage:
+  // --------------------
   //
   // in a user-defined type:
   //
@@ -49,6 +63,11 @@ public:
   // }
   //
   // };
+  //
+  // Note:
+  // --------------------
+  // 1. the user-defined type can be a scalar or a complex type, so we left
+  //    OnObjectBegin() and OnObjectEnd() to the user.
   //
   template <typename T> void WriteValue(const T &value) {
     SaturnWriteValue(*this, value);
@@ -163,20 +182,20 @@ public:
   // primitive types
   //===------------------------------------------------===
 
-	virtual void WriteValue(const string &value);
-	virtual void WriteValue(const char *value) = 0;
+  virtual void WriteValue(const string &value);
+  virtual void WriteValue(const char *value) = 0;
   virtual void WriteNull() = 0;
-	virtual void WriteValue(bool value) = 0;
-	virtual void WriteValue(u8 value) = 0;
-	virtual void WriteValue(i8 value) = 0;
-	virtual void WriteValue(u16 value) = 0;
-	virtual void WriteValue(i16 value) = 0;
-	virtual void WriteValue(u32 value) = 0;
-	virtual void WriteValue(i32 value) = 0;
-	virtual void WriteValue(u64 value) = 0;
-	virtual void WriteValue(i64 value) = 0;
-	virtual void WriteValue(float value) = 0;
-	virtual void WriteValue(double value) = 0;
+  virtual void WriteValue(bool value) = 0;
+  virtual void WriteValue(u8 value) = 0;
+  virtual void WriteValue(i8 value) = 0;
+  virtual void WriteValue(u16 value) = 0;
+  virtual void WriteValue(i16 value) = 0;
+  virtual void WriteValue(u32 value) = 0;
+  virtual void WriteValue(i32 value) = 0;
+  virtual void WriteValue(u64 value) = 0;
+  virtual void WriteValue(i64 value) = 0;
+  virtual void WriteValue(float value) = 0;
+  virtual void WriteValue(double value) = 0;
 };
 
 } // namespace saturn

@@ -50,6 +50,7 @@ public:
         yyjson_mut_write(doc, pretty ? YYJSON_WRITE_PRETTY : 0, nullptr);
     DCHECK(str != nullptr) << "malformed json\n";
     auto result = std::string(str);
+    free(str);
     yyjson_mut_doc_free(doc);
     return result;
   }
@@ -89,7 +90,7 @@ private:
   //===------------------------------------------------===
 
 public:
-  void SetTag(const char *tag);
+  void SetTag(const char *tag) override;
 
   void OnObjectBegin() final;
   void OnObjectEnd() final;

@@ -14,63 +14,57 @@
 namespace saturn {
 
 class BinarySerializer : public Serializer {
-protected:
-  void onSerializeBegin() override;
-  void onSerializeEnd() override;
 
-  void OnObjectBegin() override;
-  void OnObjectEnd() override;
+
+
+//===------------------------------------------------------------------------===
+// parent interface
+//===------------------------------------------------------------------------===
+protected:
+  void SetTag(const char *tag) override;
+
+  void OnObjectBegin() final;
+  void OnObjectEnd() final;
 
   //===------------------------------------------------===
   // write a pair
   //===------------------------------------------------===
-  void OnPairBegin() override;
-  void OnPairKeyBegin() override;
-  void OnPairKeyEnd() override;
-  void OnPairValueBegin() override;
-  void OnPairValueEnd() override;
-  void OnPairEnd() override;
+  void OnPairBegin() final;
+  void OnPairKeyBegin() final;
+  void OnPairValueBegin() final;
+  void OnPairEnd() final;
 
   //===------------------------------------------------===
   // write a vector
   //===------------------------------------------------===
-  void OnVectorBegin(Size size) override;
-  void OnVectorEnd(Size size) override;
-  void OnVectorItemBegin(Size maxSize, Offset curSize) override;
-  void OnVectorItemEnd(Size maxSize, Offset curSize) override;
+  void OnVectorBegin(Size size) final;
+  void OnVectorEnd(Size size) final;
 
   //===------------------------------------------------===
   // write an unordered map
   //===------------------------------------------------===
-  void OnUnorderedMapBegin(Size size) override;
-  void OnUnorderedMapEnd(Size size) override;
-  void OnUnorderedMapItemBegin() override;
-  void OnUnorderedMapItemEnd() override;
-  void OnUnorderedMapKeyBegin() override;
-  void OnUnorderedMapKeyEnd() override;
-  void OnUnorderedMapValueBegin() override;
-  void OnUnorderedMapValueEnd() override;
+  void OnUnorderedMapBegin(Size size) final;
+  void OnUnorderedMapEnd(Size size) final;
+  void OnUnorderedMapItemBegin() final;
+  void OnUnorderedMapItemEnd() final;
+  void OnUnorderedMapKeyBegin() final;
+  void OnUnorderedMapValueBegin() final;
 
-  //===------------------------------------------------===
-  // write a set
-  //===------------------------------------------------===
-  void OnSetBegin(Size size) override;
-  void OnSetEnd(Size size) override;
-  void OnSetItemBegin() override;
-  void OnSetItemEnd() override;
-
-  void WriteNull() override;
-  void WriteValue(bool value) override;
-  void WriteValue(u8 value) override;
-  void WriteValue(i8 value) override;
-  void WriteValue(u16 value) override;
-  void WriteValue(i16 value) override;
-  void WriteValue(u32 value) override;
-  void WriteValue(i32 value) override;
-  void WriteValue(u64 value) override;
-  void WriteValue(i64 value) override;
-  void WriteValue(float value) override;
-  void WriteValue(double value) override;
+  // https://stackoverflow.com/questions/3678197/virtual-function-implemented-in-base-class-not-being-found-by-compiler
+  using Serializer::WriteValue;
+  void WriteValue(const char *value) final;
+  void WriteNull() final;
+  void WriteValue(bool value) final;
+  void WriteValue(u8 value) final;
+  void WriteValue(i8 value) final;
+  void WriteValue(u16 value) final;
+  void WriteValue(i16 value) final;
+  void WriteValue(u32 value) final;
+  void WriteValue(i32 value) final;
+  void WriteValue(u64 value) final;
+  void WriteValue(i64 value) final;
+  void WriteValue(float value) final;
+  void WriteValue(double value) final;
 };
 
 } // namespace saturn
