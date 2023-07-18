@@ -53,14 +53,8 @@ static constexpr array<const char *,
 
 class Exception : public std::exception {
 public:
-  explicit Exception(string message) : message_(std::move(message)) {}
-  Exception(ExceptionType type, const char *message);
-
-  template <typename... Args>
-  explicit constexpr Exception(ExceptionType type,
-                               string_view message,
-                               Args &&...args)
-      : message_(absl::StrFormat(message, std::forward<Args>(args)...)) {}
+  Exception(ExceptionType type, const string& message)
+      : type(type), message_(ExceptionTypeString[size_t(type)] + message){};
 
   ExceptionType type;
 
@@ -70,71 +64,40 @@ private:
 
 class IllegalArgumentException : public Exception {
 public:
-  explicit IllegalArgumentException(const char *message) : Exception(message){};
-
-  template <typename... Args>
-  explicit constexpr IllegalArgumentException(string_view message,
-                                              Args &&...args)
-      : Exception(ExceptionType::IllegalArgumentException,
-                  message,
-                  std::forward<Args>(args)...) {}
+  explicit IllegalArgumentException(const string &message)
+      : Exception(ExceptionType(ExceptionType::IllegalArgumentException),
+                  message) {}
 };
 
 class InternalException : public Exception {
 public:
-  explicit InternalException(const char *message = "Internal")
-      : Exception(message) {}
-
-  template <typename... Args>
-  explicit constexpr InternalException(string_view message, Args &&...args)
-      : Exception(ExceptionType::InternalException,
-                  message,
-                  std::forward<Args>(args)...) {}
+  explicit InternalException(const string &message)
+      : Exception(ExceptionType(ExceptionType::InternalException), message) {}
 };
 
 class VerifyException : public Exception {
 public:
-  explicit VerifyException(const char *message);
-
-  template <typename... Args>
-  explicit constexpr VerifyException(string_view message, Args &&...args)
-      : Exception(ExceptionType::VerifyException,
-                  message,
-                  std::forward<Args>(args)...) {}
+  explicit VerifyException(const string &message)
+      : Exception(ExceptionType(ExceptionType::VerifyException), message) {}
 };
 
 class UnreachableException : public Exception {
 public:
-  explicit UnreachableException(const char *message);
-
-  template <typename... Args>
-  explicit constexpr UnreachableException(string_view message, Args &&...args)
-      : Exception(ExceptionType::UnreachableException,
-                  message,
-                  std::forward<Args>(args)...) {}
+  explicit UnreachableException(const string &message)
+      : Exception(ExceptionType(ExceptionType::UnreachableException), message) {
+  }
 };
 
 class NotImplementedException : public Exception {
 public:
-  explicit NotImplementedException(const char *message);
-
-  template <typename... Args>
-  explicit constexpr NotImplementedException(string_view message,
-                                             Args &&...args)
-      : Exception(ExceptionType::NotImplementedException,
-                  message,
-                  std::forward<Args>(args)...) {}
+  explicit NotImplementedException(const string &message)
+      : Exception(ExceptionType::NotImplementedException, message) {}
 };
 
 class OtherException : public Exception {
 public:
-  explicit OtherException(const char *message);
-
-  template <typename... Args>
-  explicit constexpr OtherException(string_view message, Args &&...args)
-      : Exception(ExceptionType::OtherException,
-                  message,
-                  std::forward<Args>(args)...) {}
+  explicit OtherException(const string &message)
+      : Exception(ExceptionType::OtherException, message) {}
 };
 
 } // namespace saturn

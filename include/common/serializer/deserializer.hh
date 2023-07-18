@@ -233,8 +233,8 @@ public:
 class ParseException : public IllegalArgumentException {
 public:
   static constexpr const char *DEFAULT_MESSAGE = "[Parse exception]";
-  explicit ParseException(const char *message = DEFAULT_MESSAGE)
-      : IllegalArgumentException(message) {}
+  explicit ParseException(const string &message)
+      : IllegalArgumentException(DEFAULT_MESSAGE + message) {}
 };
 
 } // namespace saturn

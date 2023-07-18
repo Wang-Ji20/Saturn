@@ -11,8 +11,4 @@
 
 #include "absl/strings/str_format.h"
 
-namespace saturn {
-template <typename... Args> auto format(absl::string_view msg, Args &&...args) -> std::string {
-  return absl::StrFormat(msg, std::forward<Args>(args)...);
-}
-} // namespace saturn
+#define format(...) absl::StrFormat(__VA_ARGS__)

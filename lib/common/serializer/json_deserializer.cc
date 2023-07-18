@@ -21,13 +21,15 @@ auto JsonDeserializer::GetNextValue() -> yyjson_val * {
       const char *json = yyjson_val_write(GetCurrent().val, 0, nullptr);
       string currentObj{json};
       free((void *)json);
-      throw ParseException();
+      throw ParseException(
+          format("Cannot find tag: %s in object: %s", currentTag, currentObj));
     }
     return val;
   }
 
   if (!yyjson_is_arr(current.val)) {
-    throw ParseException();
+    throw ParseException(format("Expect array or object, but got: %v",
+                                yyjson_get_type(current.val)));
   }
 
   // current is an array
@@ -36,7 +38,8 @@ auto JsonDeserializer::GetNextValue() -> yyjson_val * {
     const char *json = yyjson_val_write(GetCurrent().val, 0, nullptr);
     string currentArr{json};
     free((void *)json);
-    throw ParseException();
+    throw ParseException(
+        format("Expect more elements in array: %v", currentArr));
   }
   return val;
 }
@@ -69,12 +72,20 @@ void JsonDeserializer::ThrowTypeError(yyjson_val *val, const char *expected) {
   const auto *actual = yyjson_get_type_desc(val);
   auto &parent = GetCurrent();
   if (yyjson_is_obj(parent.val)) {
-    throw ParseException();
+    throw ParseException(
+        format("Property: %s expected type: %s, but got type: %s",
+               currentTag,
+               expected,
+               actual));
   }
   if (yyjson_is_arr(parent.val)) {
-    throw ParseException();
+    throw ParseException(
+        format("Sequence expect child of type: %s, but got type: %s",
+               expected,
+               actual));
   }
-  throw InternalException();
+  throw InternalException(
+      "Cannot get nested value from non object or array-type");
 }
 
 //===------------------------------------------------------------------------===
