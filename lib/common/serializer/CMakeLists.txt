@@ -3,6 +3,7 @@ add_library(
   OBJECT
   serializer.cc
   json_serializer.cc
+  json_deserializer.cc
 )
 
 set(

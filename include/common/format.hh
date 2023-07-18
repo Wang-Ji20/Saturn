@@ -12,7 +12,7 @@
 #include "absl/strings/str_format.h"
 
 namespace saturn {
-template <typename... Args> auto format(Args &&...args) -> std::string {
-  return absl::StrFormat(std::forward<Args>(args)...);
+template <typename... Args> auto format(absl::string_view msg, Args &&...args) -> std::string {
+  return absl::StrFormat(msg, std::forward<Args>(args)...);
 }
 } // namespace saturn

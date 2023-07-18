@@ -33,7 +33,7 @@ public:
   inline auto get(typename original::size_type _nn) ->
       typename original::reference {
 
-    AssertIndexInBounds(_nn, original::size());
+    AssertIndexInBounds(_nn);
 
     return original::operator[](_nn);
   }
@@ -41,7 +41,7 @@ public:
   inline auto get(typename original::size_type _nn) const ->
       typename original::const_reference {
 
-    AssertIndexInBounds(_nn, original::size());
+    AssertIndexInBounds(_nn);
 
     return original::operator[](_nn);
   }
@@ -70,8 +70,8 @@ public:
   }
 
 private:
-  void AssertMemoryInBounds(size_type index) {
-    if (index >= this->size()) {
+  void AssertIndexInBounds(size_type index) {
+    if (index >= original::size()) {
       LOG(FATAL) << "vector index out of bound: " << index
                  << " >= " << this->size();
     }

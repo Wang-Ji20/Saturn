@@ -9,6 +9,8 @@
 
 //===------------------------------------------------------------------------===
 // The deserializer interface.
+//
+// This portion of code is (mostly) taken from DuckDB with some modification.
 //===------------------------------------------------------------------------===
 
 #pragma once
@@ -16,6 +18,8 @@
 #include "common/serializer/serializer_type_traits.hh"
 #include "common/string.hh"
 #include "common/type.hh"
+
+#include "common/exception.hh"
 
 namespace saturn {
 
@@ -77,9 +81,31 @@ protected:
   //===------------------------------------------------------------------------===
   // Internal templates
   //===------------------------------------------------------------------------===
-private:
+public:
   void SetTag(const string &tag) { SetTag(tag.c_str()); };
 
+  /// read a generic value
+  // Friend Template Argument-Dependent Lookup Extension
+  //
+  // Usage:
+  // --------------------
+  //
+  // in a user-defined type:
+  //
+  // class xxx {
+  //
+  // template <typename Ser>
+  // friend auto SaturnReadValue(Ser& serializer) -> xxx {
+  //    return the result.
+  // }
+  //
+  // };
+  //
+  // Note:
+  // --------------------
+  // 1. the user-defined type can be a scalar or a complex type, so we left
+  //    OnObjectBegin() and OnObjectEnd() to the user.
+  //
   template <typename T> auto Read() -> ReturnType<T, is_deserializable> {
     return T::SaturnReadValue(*this);
   }
@@ -202,6 +228,13 @@ private:
     using UNDERLYING_TYPE = typename std::underlying_type<T>::type;
     return static_cast<T>(Read<UNDERLYING_TYPE>());
   }
+};
+
+class ParseException : public IllegalArgumentException {
+public:
+  static constexpr const char *DEFAULT_MESSAGE = "[Parse exception]";
+  explicit ParseException(const char *message = DEFAULT_MESSAGE)
+      : IllegalArgumentException(message) {}
 };
 
 } // namespace saturn

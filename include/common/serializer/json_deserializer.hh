@@ -22,9 +22,15 @@ public:
   }
   ~JsonDeserializer() { yyjson_doc_free(doc); }
 
+  static auto FromString(const std::string &str) -> JsonDeserializer {
+    auto *doc = yyjson_read(str.c_str(), str.size(), 0);
+    DCHECK(doc != nullptr) << "malformed json\n";
+    return {yyjson_doc_get_root(doc), doc};
+  }
+
 private:
   yyjson_doc *doc = nullptr;
-  const char *current_tag = nullptr;
+  const char *currentTag = nullptr;
 
   struct StackFrame {
     yyjson_val *val;
@@ -35,12 +41,23 @@ private:
   };
 
   vector<StackFrame> stack;
+  void DumpDoc();
+  void DumpCurrent();
+  static void Dump(yyjson_mut_val *val);
+  static void Dump(yyjson_val *val);
+  void ThrowTypeError(yyjson_val *val, const char *expected);
+
+	auto GetNextValue() -> yyjson_val *;
+  inline auto GetCurrent() -> StackFrame & { return stack.back(); }
+  inline void Push(yyjson_val *val) { stack.emplace_back(val); }
+  inline void Pop() { stack.pop_back(); }
+
 
 protected:
   //===------------------------------------------------------------------------===
   // override functions
   //===------------------------------------------------------------------------===
-  void SetTag(const char *tag) override;
+  inline void SetTag(const char *tag) override { currentTag = tag; }
   auto OnVectorBegin() -> Size override;
   void OnVectorEnd() override;
   auto OnMapBegin() -> Size override;
@@ -48,16 +65,12 @@ protected:
   void OnMapEntryBegin() override;
   void OnMapEntryEnd() override;
   void OnMapKeyBegin() override;
-  void OnMapKeyEnd() override;
   void OnMapValueBegin() override;
-  void OnMapValueEnd() override;
   void OnObjectBegin() override;
   void OnObjectEnd() override;
   void OnPairBegin() override;
   void OnPairKeyBegin() override;
-  void OnPairKeyEnd() override;
   void OnPairValueBegin() override;
-  void OnPairValueEnd() override;
   void OnPairEnd() override;
 
   auto ReadBool() -> bool override;

@@ -42,7 +42,7 @@ enum class ExceptionType {
   BuiltinExceptionNumberCount
 };
 
-static constexpr array<string_view,
+static constexpr array<const char *,
                        size_t(ExceptionType::BuiltinExceptionNumberCount)>
     ExceptionTypeString = {"IllegalArgumentException ",
                            "InternalException ",
@@ -53,13 +53,14 @@ static constexpr array<string_view,
 
 class Exception : public std::exception {
 public:
-  explicit Exception(const string &message);
-  Exception(ExceptionType type, const string &message);
+  explicit Exception(string message) : message_(std::move(message)) {}
+  Exception(ExceptionType type, const char *message);
 
   template <typename... Args>
-  explicit Exception(ExceptionType type, const string &message, Args &&...args)
-      : message_(ExceptionTypeString[size_t(type)] +
-                 format(message, std::forward<Args>(args)...)) {}
+  explicit constexpr Exception(ExceptionType type,
+                               string_view message,
+                               Args &&...args)
+      : message_(absl::StrFormat(message, std::forward<Args>(args)...)) {}
 
   ExceptionType type;
 
@@ -69,10 +70,11 @@ private:
 
 class IllegalArgumentException : public Exception {
 public:
-  explicit IllegalArgumentException(const string &message);
+  explicit IllegalArgumentException(const char *message) : Exception(message){};
 
   template <typename... Args>
-  explicit IllegalArgumentException(const string &message, Args &&...args)
+  explicit constexpr IllegalArgumentException(string_view message,
+                                              Args &&...args)
       : Exception(ExceptionType::IllegalArgumentException,
                   message,
                   std::forward<Args>(args)...) {}
@@ -80,10 +82,11 @@ public:
 
 class InternalException : public Exception {
 public:
-  explicit InternalException(const string &message);
+  explicit InternalException(const char *message = "Internal")
+      : Exception(message) {}
 
   template <typename... Args>
-  explicit InternalException(const string &message, Args &&...args)
+  explicit constexpr InternalException(string_view message, Args &&...args)
       : Exception(ExceptionType::InternalException,
                   message,
                   std::forward<Args>(args)...) {}
@@ -91,10 +94,10 @@ public:
 
 class VerifyException : public Exception {
 public:
-  explicit VerifyException(const string &message);
+  explicit VerifyException(const char *message);
 
   template <typename... Args>
-  explicit VerifyException(const string &message, Args &&...args)
+  explicit constexpr VerifyException(string_view message, Args &&...args)
       : Exception(ExceptionType::VerifyException,
                   message,
                   std::forward<Args>(args)...) {}
@@ -102,10 +105,10 @@ public:
 
 class UnreachableException : public Exception {
 public:
-  explicit UnreachableException(const string &message);
+  explicit UnreachableException(const char *message);
 
   template <typename... Args>
-  explicit UnreachableException(const string &message, Args &&...args)
+  explicit constexpr UnreachableException(string_view message, Args &&...args)
       : Exception(ExceptionType::UnreachableException,
                   message,
                   std::forward<Args>(args)...) {}
@@ -113,10 +116,11 @@ public:
 
 class NotImplementedException : public Exception {
 public:
-  explicit NotImplementedException(const string &message);
+  explicit NotImplementedException(const char *message);
 
   template <typename... Args>
-  explicit NotImplementedException(const string &message, Args &&...args)
+  explicit constexpr NotImplementedException(string_view message,
+                                             Args &&...args)
       : Exception(ExceptionType::NotImplementedException,
                   message,
                   std::forward<Args>(args)...) {}
@@ -124,10 +128,10 @@ public:
 
 class OtherException : public Exception {
 public:
-  explicit OtherException(const string &message);
+  explicit OtherException(const char *message);
 
   template <typename... Args>
-  explicit OtherException(const string &message, Args &&...args)
+  explicit constexpr OtherException(string_view message, Args &&...args)
       : Exception(ExceptionType::OtherException,
                   message,
                   std::forward<Args>(args)...) {}

@@ -9,9 +9,10 @@
 
 #pragma once
 
+#include "absl/strings/string_view.h"
 #include <string>
 
 namespace saturn {
 using std::string;
-using std::string_view;
+using absl::string_view;
 } // namespace saturn
