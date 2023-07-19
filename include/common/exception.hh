@@ -53,10 +53,14 @@ static constexpr array<const char *,
 
 class Exception : public std::exception {
 public:
-  Exception(ExceptionType type, const string& message)
+  Exception(ExceptionType type, const string &message)
       : type(type), message_(ExceptionTypeString[size_t(type)] + message){};
 
   ExceptionType type;
+
+  [[nodiscard]] auto what() const noexcept -> const char * override {
+    return message_.c_str();
+  }
 
 private:
   string message_;

@@ -166,7 +166,7 @@ auto JsonDeserializer::ReadBool() -> bool {
 
 auto JsonDeserializer::ReadSignedInt8() -> i8 {
   auto *val = GetNextValue();
-  if (!yyjson_is_sint(val)) {
+  if (!yyjson_is_int(val)) {
     ThrowTypeError(val, "int");
   }
   return static_cast<i8>(yyjson_get_sint(val));
@@ -182,7 +182,7 @@ auto JsonDeserializer::ReadUnsignedInt8() -> u8 {
 
 auto JsonDeserializer::ReadSignedInt16() -> i16 {
   auto *val = GetNextValue();
-  if (!yyjson_is_sint(val)) {
+  if (!yyjson_is_int(val)) {
     ThrowTypeError(val, "int");
   }
   return static_cast<i16>(yyjson_get_sint(val));
@@ -198,7 +198,7 @@ auto JsonDeserializer::ReadUnsignedInt16() -> u16 {
 
 auto JsonDeserializer::ReadSignedInt32() -> i32 {
   auto *val = GetNextValue();
-  if (!yyjson_is_sint(val)) {
+  if (!yyjson_is_int(val)) {
     ThrowTypeError(val, "int");
   }
   return static_cast<i32>(yyjson_get_sint(val));
@@ -214,7 +214,7 @@ auto JsonDeserializer::ReadUnsignedInt32() -> u32 {
 
 auto JsonDeserializer::ReadSignedInt64() -> i64 {
   auto *val = GetNextValue();
-  if (!yyjson_is_sint(val)) {
+  if (!yyjson_is_int(val)) {
     ThrowTypeError(val, "int");
   }
   return static_cast<i64>(yyjson_get_sint(val));

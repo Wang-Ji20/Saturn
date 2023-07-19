@@ -4,6 +4,8 @@ add_library(
   serializer.cc
   json_serializer.cc
   json_deserializer.cc
+  binary_serializer.cc
+  binary_deserializer.cc
 )
 
 set(

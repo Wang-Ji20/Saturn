@@ -10,45 +10,76 @@
 #pragma once
 
 #include "common/serializer/serializer.hh"
+#include "container/vector.hh"
 
 namespace saturn {
 
 class BinarySerializer : public Serializer {
+private:
+  //===------------------------------------------------------------------------===
+  // Internal Implementation
+  //===------------------------------------------------------------------------===
 
+  struct State {
+    u32 fieldCount;
+    Size objectSize;
+    Offset bufferOffset;
+    State(u32 fieldCount, Size objectSize, Offset bufferOffset)
+        : fieldCount(fieldCount), objectSize(objectSize),
+          bufferOffset(bufferOffset) {}
+  };
 
+  const char *current_tag;
 
-//===------------------------------------------------------------------------===
-// parent interface
-//===------------------------------------------------------------------------===
-protected:
+  vector<Datum> data;
+
+  vector<State> stack;
+
+  template <typename T> void Store(const T &value, Datum *buffer) {
+    std::memcpy(buffer, (void *)&value, sizeof(T));
+  }
+
+  template <typename T> void Write(T value) {
+    static_assert(std::is_trivially_destructible<T>::value,
+                  "T must be trivally destructible-typed variable");
+    WriteData(reinterpret_cast<const char *>(&value), Size(sizeof(T)));
+  }
+
+  void WriteData(const Datum *buffer, Size size) {
+    data.insert(data.end(), buffer, buffer + size);
+    stack.back().objectSize += size;
+  }
+
+  void WriteData(const char *buffer, Size size) {
+    WriteData(reinterpret_cast<const Datum *>(buffer), size);
+  }
+
+  explicit BinarySerializer() = default;
+
+  //===------------------------------------------------------------------------===
+  // parent interface
+  //===------------------------------------------------------------------------===
+public:
+  template <typename T> static auto Serialize(T &obj) -> vector<Datum> {
+    BinarySerializer serializer;
+    serializer.WriteValue(obj);
+    return std::move(serializer.data);
+  }
+
   void SetTag(const char *tag) override;
 
   void OnObjectBegin() final;
   void OnObjectEnd() final;
 
   //===------------------------------------------------===
-  // write a pair
-  //===------------------------------------------------===
-  void OnPairBegin() final;
-  void OnPairKeyBegin() final;
-  void OnPairValueBegin() final;
-  void OnPairEnd() final;
-
-  //===------------------------------------------------===
   // write a vector
   //===------------------------------------------------===
   void OnVectorBegin(Size size) final;
-  void OnVectorEnd(Size size) final;
 
   //===------------------------------------------------===
   // write an unordered map
   //===------------------------------------------------===
   void OnUnorderedMapBegin(Size size) final;
-  void OnUnorderedMapEnd(Size size) final;
-  void OnUnorderedMapItemBegin() final;
-  void OnUnorderedMapItemEnd() final;
-  void OnUnorderedMapKeyBegin() final;
-  void OnUnorderedMapValueBegin() final;
 
   // https://stackoverflow.com/questions/3678197/virtual-function-implemented-in-base-class-not-being-found-by-compiler
   using Serializer::WriteValue;

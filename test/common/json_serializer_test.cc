@@ -30,14 +30,15 @@ struct SomeComplexStruct {
     serializer.OnObjectEnd();
   }
 
-  template <typename Des>
-  friend auto SaturnReadValue(Des &deserializer) -> SomeComplexStruct {
+  static auto SaturnReadValue(saturn::Deserializer &deserializer)
+      -> SomeComplexStruct {
     deserializer.OnObjectBegin();
     int deserialize_x;
     int deserialize_y;
     deserializer.ReadProperty("x", deserialize_x);
     deserializer.ReadProperty("y", deserialize_y);
     deserializer.OnObjectEnd();
+    return SomeComplexStruct{deserialize_x, deserialize_y};
   }
 };
 
@@ -66,4 +67,14 @@ TEST(JsonDeserializerTest, Basic) {
   auto deserializer = JsonDeserializer::FromString(result);
   auto deserialize_p = deserializer.Read<std::pair<std::string, std::string>>();
   ASSERT_EQ(deserialize_p, p);
+}
+
+TEST(JsonDeserializerTest, Extension) {
+  using namespace saturn;
+  string str = "[\n {\n        \"x\": 1,\n        \"y\": 2\n    }\n ]";
+  auto deserializer = JsonDeserializer::FromString(str);
+  static_assert(has_deserialize<SomeComplexStruct>(), "nono");
+  auto result = deserializer.Read<unique_ptr<SomeComplexStruct>>();
+  ASSERT_EQ(result->x, 1);
+  ASSERT_EQ(result->y, 2);
 }

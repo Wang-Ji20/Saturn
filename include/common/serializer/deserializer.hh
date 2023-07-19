@@ -44,7 +44,6 @@ public:
   //===------------------------------------------------------------------------===
   // class interface, override by concrete deserializer
   //===------------------------------------------------------------------------===
-protected:
   virtual void SetTag(const char *tag) = 0;
   virtual auto OnVectorBegin() -> Size = 0;
   virtual void OnVectorEnd() {}
@@ -65,6 +64,7 @@ protected:
   virtual void OnPairValueEnd() {}
   virtual void OnPairEnd() {}
 
+protected:
   virtual auto ReadBool() -> bool = 0;
   virtual auto ReadSignedInt8() -> i8 = 0;
   virtual auto ReadUnsignedInt8() -> u8 = 0;
@@ -85,28 +85,9 @@ public:
   void SetTag(const string &tag) { SetTag(tag.c_str()); };
 
   /// read a generic value
-  // Friend Template Argument-Dependent Lookup Extension
-  //
-  // Usage:
-  // --------------------
-  //
-  // in a user-defined type:
-  //
-  // class xxx {
-  //
-  // template <typename Ser>
-  // friend auto SaturnReadValue(Ser& serializer) -> xxx {
-  //    return the result.
-  // }
-  //
-  // };
-  //
-  // Note:
-  // --------------------
-  // 1. the user-defined type can be a scalar or a complex type, so we left
-  //    OnObjectBegin() and OnObjectEnd() to the user.
-  //
   template <typename T> auto Read() -> ReturnType<T, is_deserializable> {
+    // NOTE: This thing must be a static function!
+    // static
     return T::SaturnReadValue(*this);
   }
 
