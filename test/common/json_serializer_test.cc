@@ -9,38 +9,12 @@
 
 #include "common/serializer/json_deserializer.hh"
 #include "common/serializer/json_serializer.hh"
+#include "serializer_struct.hh"
 #include "gtest/gtest.h"
 
 #include <iostream>
 #include <string>
 #include <utility>
-
-struct SomeComplexStruct {
-  int x;
-  int y;
-
-  template <typename Ser>
-  friend void SaturnWriteValue(Ser &serializer,
-                               const SomeComplexStruct &value) {
-    serializer.OnObjectBegin();
-    serializer.SetTag("x");
-    serializer.WriteValue(value.x);
-    serializer.SetTag("y");
-    serializer.WriteValue(value.y);
-    serializer.OnObjectEnd();
-  }
-
-  static auto SaturnReadValue(saturn::Deserializer &deserializer)
-      -> SomeComplexStruct {
-    deserializer.OnObjectBegin();
-    int deserialize_x;
-    int deserialize_y;
-    deserializer.ReadProperty("x", deserialize_x);
-    deserializer.ReadProperty("y", deserialize_y);
-    deserializer.OnObjectEnd();
-    return SomeComplexStruct{deserialize_x, deserialize_y};
-  }
-};
 
 TEST(JsonSerializerTest, Basic) {
   using namespace saturn;

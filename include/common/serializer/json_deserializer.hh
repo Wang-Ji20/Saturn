@@ -17,18 +17,18 @@ namespace saturn {
 
 class JsonDeserializer : public Deserializer {
 public:
-  JsonDeserializer(yyjson_val *val, yyjson_doc *doc) : doc(doc) {
-    stack.emplace_back(val);
-  }
-  ~JsonDeserializer() { yyjson_doc_free(doc); }
-
   static auto FromString(const std::string &str) -> JsonDeserializer {
     auto *doc = yyjson_read(str.c_str(), str.size(), 0);
     DCHECK(doc != nullptr) << "malformed json\n";
     return {yyjson_doc_get_root(doc), doc};
   }
 
+  ~JsonDeserializer() { yyjson_doc_free(doc); }
 private:
+  JsonDeserializer(yyjson_val *val, yyjson_doc *doc) : doc(doc) {
+    stack.emplace_back(val);
+  }
+
   yyjson_doc *doc = nullptr;
   const char *currentTag = nullptr;
 

@@ -18,8 +18,8 @@ public:
   template <typename T>
   static auto Deserialize(Datum *ptr, Size length) -> unique_ptr<T> {
     BinaryDeserializer deserializer(ptr, length);
-    auto result = T::FormatDeserialize(deserializer);
-    return result;
+    auto result = deserializer.Read<T>();
+    return make_unique<T>(std::move(result));
   }
 
 private:

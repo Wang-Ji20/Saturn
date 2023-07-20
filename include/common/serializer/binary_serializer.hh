@@ -14,6 +14,14 @@
 
 namespace saturn {
 
+/// Serialize format:
+/// 1. For primitive types, we use the binary format of the type.
+/// 2. For object types, we use the following format:
+///    1. The first 4 bytes is the field count.
+///    2. The next 8 bytes is the size of the object.
+/// 3. for STL container types, we use the following format:
+///    1. The first 4 bytes is the container size
+///    2. The next are elements in the container
 class BinarySerializer : public Serializer {
 private:
   //===------------------------------------------------------------------------===
@@ -25,7 +33,8 @@ private:
     Size objectSize;
     Offset bufferOffset;
     State(u32 fieldCount, Size objectSize, Offset bufferOffset)
-        : fieldCount(fieldCount), objectSize(objectSize),
+        : fieldCount(fieldCount),
+          objectSize(objectSize),
           bufferOffset(bufferOffset) {}
   };
 
@@ -54,7 +63,7 @@ private:
     WriteData(reinterpret_cast<const Datum *>(buffer), size);
   }
 
-  explicit BinarySerializer() = default;
+  explicit BinarySerializer() { stack.emplace_back(0, 0_Size, 0_Offset); };
 
   //===------------------------------------------------------------------------===
   // parent interface

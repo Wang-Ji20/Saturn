@@ -71,7 +71,8 @@ auto BinaryDeserializer::ReadString() -> string {
   if (length == 0) {
     return "";
   }
-  auto buffer = vector<Datum>(length);
+  auto buffer = vector<Datum>();
+  buffer.reserve(length);
   ReadData(buffer, Size(length));
   return {buffer.begin(), buffer.end()};
 }
