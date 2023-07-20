@@ -1,14 +1,12 @@
 //===------------------------------------------===
 // Saturn 2023
 //
-// Identification: include\common\format.hh
+// Identification: lib/storage/single_file_block_manager.cc
 //
 // Author: Ji Wang <jiwangcdi@gmail.com>
 //
 //===------------------------------------------===
 
-#pragma once
+#include "storage/single_file_block_manager.hh"
 
-#include "absl/strings/str_format.h"
-
-#define format(...) absl::StrFormat(__VA_ARGS__)
+namespace saturn {} // namespace saturn

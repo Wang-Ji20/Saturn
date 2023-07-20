@@ -1,10 +1,12 @@
 add_subdirectory(abseil)
 add_subdirectory(googletest)
+add_subdirectory(yyjson)
 
 # third part, not my business
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w")
 
-set(DEPS_SUBMODULES abseil googletest)
+set(DEPS_SUBMODULES abseil googletest yyjson)
+
 foreach(submodule IN LISTS DEPS_SUBMODULES)
     file(GLOB SUBMOD_CONTENTS ${submodule})
     list(LENGTH SUBMOD_CONTENTS SUBMOD_CONTENT_LEN)

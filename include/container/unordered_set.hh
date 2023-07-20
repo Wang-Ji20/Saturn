@@ -1,7 +1,7 @@
 //===------------------------------------------===
 // Saturn 2023
 //
-// Identification: include\common\string.hh
+// Identification: include/container/unordered_set.hh
 //
 // Author: Ji Wang <jiwangcdi@gmail.com>
 //
@@ -9,10 +9,8 @@
 
 #pragma once
 
-#include "absl/strings/string_view.h"
-#include <string>
+#include <unordered_set>
 
 namespace saturn {
-using std::string;
-using absl::string_view;
+using std::unordered_set;
 } // namespace saturn

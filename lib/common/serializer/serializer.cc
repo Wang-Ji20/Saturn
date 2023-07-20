@@ -1,18 +1,17 @@
 //===------------------------------------------===
 // Saturn 2023
 //
-// Identification: include\common\string.hh
+// Identification: lib/common/serializer/serializer.cc
 //
 // Author: Ji Wang <jiwangcdi@gmail.com>
 //
 //===------------------------------------------===
 
-#pragma once
-
-#include "absl/strings/string_view.h"
-#include <string>
+#include "common/serializer/serializer.hh"
 
 namespace saturn {
-using std::string;
-using absl::string_view;
+
+/// a vtable anchor
+void Serializer::WriteValue(const string &value) { WriteValue(value.c_str()); }
+
 } // namespace saturn

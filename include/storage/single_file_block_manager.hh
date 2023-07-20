@@ -14,6 +14,13 @@
 
 namespace saturn {
 
+class DatabaseInstance;
+
+struct StorageManagerOptions {
+  bool read_only = false;
+  bool use_direct_io = false;
+};
+
 class SingleFileBlockManager : public BlockManager {
 public:
   ~SingleFileBlockManager() override = default;

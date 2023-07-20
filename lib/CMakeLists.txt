@@ -1,5 +1,6 @@
 add_subdirectory(storage)
 add_subdirectory(port)
+add_subdirectory(common)
 
 # -Wall -Werror
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
@@ -19,6 +20,7 @@ set(
     absl::optional
     absl::statusor
     absl::status
+    yyjson
 )
 
 target_link_libraries(

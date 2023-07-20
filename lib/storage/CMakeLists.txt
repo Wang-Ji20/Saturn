@@ -9,6 +9,7 @@ add_library(
     buffer_pool.cc
     block_handle.cc
     block_manager.cc
+    single_file_block_manager.cc
 )
 
 set(
