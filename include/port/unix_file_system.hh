@@ -48,6 +48,9 @@ public:
 
   void Seek(FileHandle &handle, Offset location) final;
   auto GetPosition(FileHandle &handle) -> Offset final;
+  void FileSync(FileHandle &handle) final;
+
+  auto ExistFile(const string &path) -> bool final;
 };
 
 } // namespace saturn

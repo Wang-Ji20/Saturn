@@ -30,4 +30,6 @@ auto FileHandle::Write(const void *buffer, Size size) -> result<Size> {
 
 auto FileHandle::GetFileSize() -> result<Size> { return fs.GetFileSize(*this); }
 
+void FileHandle::Sync() { fs.FileSync(*this); }
+
 } // namespace saturn

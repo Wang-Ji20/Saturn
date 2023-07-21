@@ -64,6 +64,9 @@ public:
   virtual void Seek(FileHandle &handle, Offset location) = 0;
   void Reset(FileHandle &handle);
   virtual auto GetPosition(FileHandle &handle) -> Offset = 0;
+  virtual void FileSync(FileHandle &handle) = 0;
+
+  virtual auto ExistFile(const string &path) -> bool = 0;
 };
 
 } // namespace saturn

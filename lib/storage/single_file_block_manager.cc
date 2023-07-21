@@ -7,6 +7,16 @@
 //
 //===------------------------------------------===
 
+#include <utility>
+
+#include "catalog/database.hh"
 #include "storage/single_file_block_manager.hh"
 
-namespace saturn {} // namespace saturn
+namespace saturn {
+
+SingleFileBlockManager::SingleFileBlockManager(Database &database, string path)
+    : BlockManager(database.GetBufferManager()),
+      database_(database),
+      path_(std::move(path)) {}
+
+} // namespace saturn

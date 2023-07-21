@@ -203,6 +203,23 @@ auto UnixFileSystem::GetPosition(FileHandle &handle) -> Offset {
   return getFilePointer(UNIXfd);
 }
 
+void UnixFileSystem::FileSync(FileHandle &handle) {
+  int UNIXfd = handle.Cast<UnixFileHandle>().fd;
+  PCHECK(fsync(UNIXfd) == 0);
+}
+
+auto UnixFileSystem::ExistFile(const string &path) -> bool {
+  if (path.empty()) {
+    return false;
+  }
+  if (access(path.c_str(), F_OK) != 0) {
+    return false;
+  }
+  struct stat fileStat;
+  PCHECK(stat(path.c_str(), &fileStat) == 0);
+  return S_ISREG(fileStat.st_mode);
+}
+
 } // namespace saturn
 
 #endif // _WIN32

@@ -14,7 +14,7 @@
 
 namespace saturn {
 
-class DatabaseInstance;
+class Database;
 
 struct StorageManagerOptions {
   bool read_only = false;
@@ -24,8 +24,7 @@ struct StorageManagerOptions {
 class SingleFileBlockManager : public BlockManager {
 public:
   ~SingleFileBlockManager() override = default;
-  explicit SingleFileBlockManager(BufferManager &bufferManager)
-      : BlockManager(bufferManager) {}
+  SingleFileBlockManager(Database &database, string path);
 
   // essential methods
   DISALLOW_COPY(SingleFileBlockManager);
@@ -60,6 +59,9 @@ public:
   auto RegisterBlock(BlockId blockId, bool isMetaBlock = false)
       -> shared_ptr<BlockHandle>;
   void UnregisterBlock(BlockId blockId, bool canDestroy);
+private:
+  Database &database_;
+  string path_;
 };
 
 } // namespace saturn
