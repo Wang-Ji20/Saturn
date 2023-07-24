@@ -11,6 +11,7 @@
 
 #include "port/file_system.hh"
 #include "common/unique_ptr.hh"
+#include "storage/allocator.hh"
 
 namespace saturn {
 
@@ -20,6 +21,9 @@ struct DBConfig {
 
   // what file system we are using. local/network/...
   unique_ptr<FileSystem> fileSystem;
+
+  // what memory allocator we are using..
+  unique_ptr<Allocator> allocator;
 };
 
 };

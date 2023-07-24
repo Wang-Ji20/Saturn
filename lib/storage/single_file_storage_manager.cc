@@ -27,14 +27,14 @@ void SingleFileStorageManager::LoadDatabase() {
   auto &fileSys = database_.GetFS();
 
   // new database
-  blockManager_ = make_unique<SingleFileBlockManager>(database_, path_);
+  auto blockManager = make_unique<SingleFileBlockManager>(database_, path_);
   if (!fileSys.ExistFile(path_)) {
     // TODO
-    // load exist database
-    blockManager_->CreateNewDatabase();
+    blockManager->CreateNewDatabase();
   } else {
-    blockManager_->LoadDatabase();
+    blockManager->LoadDatabase();
   }
+  blockManager_ = std::move(blockManager);
   // TODO: start WAL
 }
 

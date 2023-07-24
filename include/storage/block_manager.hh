@@ -61,9 +61,6 @@ public:
   auto RegisterBlock(BlockId blockId, bool isMetaBlock = false) -> shared_ptr<BlockHandle>;
   void UnregisterBlock(BlockId blockId, bool canDestroy);
 
-  void CreateNewDatabase();
-  void LoadDatabase();
-
 private:
   mutable mutex blockLock_;
   unordered_map<BlockId, weak_ptr<BlockHandle>> blockMap_;

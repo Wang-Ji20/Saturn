@@ -17,6 +17,7 @@ struct Storage {
   constexpr static Size SECTOR_SIZE = 4096_Size;
   constexpr static Size BLOCK_HEADER_SIZE = Size(sizeof(u64));
   constexpr static Size BLOCK_ALLOC_SIZE = 262144_Size;
+  constexpr static Version VERSION = Version(0ULL);
 };
 
 } // namespace saturn

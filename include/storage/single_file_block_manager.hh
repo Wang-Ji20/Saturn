@@ -10,6 +10,7 @@
 #pragma once
 
 #include "common/constant.hh"
+#include "port/file_system.hh"
 #include "storage/block_manager.hh"
 
 namespace saturn {
@@ -24,7 +25,9 @@ struct StorageManagerOptions {
 class SingleFileBlockManager : public BlockManager {
 public:
   ~SingleFileBlockManager() override = default;
-  SingleFileBlockManager(Database &database, string path);
+  SingleFileBlockManager(Database &database,
+                         string path,
+                         StorageManagerOptions options = {});
 
   // essential methods
   DISALLOW_COPY(SingleFileBlockManager);
@@ -59,9 +62,19 @@ public:
   auto RegisterBlock(BlockId blockId, bool isMetaBlock = false)
       -> shared_ptr<BlockHandle>;
   void UnregisterBlock(BlockId blockId, bool canDestroy);
+
+  void CreateNewDatabase();
+  void LoadDatabase();
+
 private:
+  auto GetFileFlag(bool createNew = false) const -> OpenFlags;
+  void ChecksumAndWrite(FileBuffer &block, Offset location) const;
+
+  StorageManagerOptions options_;
   Database &database_;
   string path_;
+  unique_ptr<FileHandle> file_;
+  FileBuffer metadataBuffer_;
 };
 
 } // namespace saturn

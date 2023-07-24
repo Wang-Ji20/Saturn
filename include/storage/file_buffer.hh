@@ -19,7 +19,7 @@ namespace saturn {
 
 enum class FileBufferType : u8 {
   BLOCK =
-      1, // this kind of buffer is used to store PRESISTENT data like tables!
+      1, // this kind of buffer is used to store PRESISTENT data like rows!
 
   MANAGED_BUFFER = 2, // a buffer managed by the buffer pool, it can be used to
                       // store TEMPORARY data! we may remember that the query
