@@ -28,6 +28,7 @@ class BufferManager;
 
 class BlockManager {
 public:
+  static constexpr BlockId kMaxBlockId = BlockId(0x7FFFFFFFFFFFFFFF);
   virtual ~BlockManager() = default;
   explicit BlockManager(BufferManager &bufferManager)
       : bufferManager_(bufferManager) {}
@@ -37,13 +38,17 @@ public:
   DISALLOW_COPY_AND_MOVE(BlockManager);
 
   // convert another kind of file buffer to block
-  // no ownership transfer, just borrowing (because block don't neccesarilly in memory)
-  virtual auto ConvertBlock(BlockId blockId, FileBuffer &source) -> unique_ptr<Block> = 0;
+  virtual auto ConvertBlock(BlockId blockId, unique_ptr<FileBuffer> source)
+      -> unique_ptr<Block> = 0;
 
   // create a new block, can reuse old file buffer.
   // source can be nullptr, we allocate new memory at that time.
-  // so use raw pointer here.
-  virtual auto CreateBlock(BlockId blockId, FileBuffer *source) -> unique_ptr<Block> = 0;
+  //
+  // note this function is used by blockHandle to load a block. It's not
+  // intended to be used to actually manage blocks.
+  virtual auto LoadCreateBlock(BlockId blockId,
+                               unique_ptr<FileBuffer> source = nullptr)
+      -> unique_ptr<Block> = 0;
 
   virtual auto GetFreeBlockId() -> BlockId = 0;
   virtual auto IsRootBlock(BlockId blockId) -> bool = 0;
@@ -58,7 +63,8 @@ public:
   virtual auto CountBlocks() -> Size = 0;
   virtual auto CountFreeBlocks() -> Size = 0;
 
-  auto RegisterBlock(BlockId blockId, bool isMetaBlock = false) -> shared_ptr<BlockHandle>;
+  auto RegisterBlock(BlockId blockId, bool isMetaBlock = false)
+      -> shared_ptr<BlockHandle>;
   void UnregisterBlock(BlockId blockId, bool canDestroy);
 
 private:

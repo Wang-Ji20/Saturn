@@ -19,11 +19,10 @@
 
 namespace saturn {
 
-// The first header of all database files.
-// size: 4088 bytes
-// first 6 bytes: "saturn"
-// next 8 bytes: version
-// other reserved
+/// The first header of all database files. used for verify the file is a saturn
+/// file.
+/// size: 4088 bytes first 6 bytes: "saturn" next 8 bytes: version other
+/// reserved
 struct CemeteryOfInnocent {
   static constexpr const char *kMagicString = "saturn";
   static constexpr Size kMagicStringLength = 6_Size;
@@ -45,6 +44,29 @@ struct CemeteryOfInnocent {
   }
 
   static auto SaturnReadValue(Deserializer &deserializer) -> CemeteryOfInnocent;
+};
+
+// metadata about the database
+struct DatabaseHeader {
+  u64 iteration;
+  BlockId rootMeta;
+  BlockId freeList;
+  u64 blockCount;
+
+  template <typename Ser>
+  friend void SaturnWriteValue(Ser &serializer, const DatabaseHeader &value) {
+    serializer.OnObjectBegin();
+    serializer.SetTag("iteration");
+    serializer.WriteValue(value.iteration);
+    serializer.SetTag("rootMeta");
+    serializer.WriteValue(static_cast<u64>(value.rootMeta));
+    serializer.SetTag("freeList");
+    serializer.WriteValue(static_cast<u64>(value.freeList));
+    serializer.SetTag("blockCount");
+    serializer.WriteValue(value.blockCount);
+  }
+
+  static auto SaturnReadValue(Deserializer &deserializer) -> DatabaseHeader;
 };
 
 } // namespace saturn

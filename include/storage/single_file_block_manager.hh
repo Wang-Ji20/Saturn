@@ -36,15 +36,12 @@ public:
       -> SingleFileBlockManager &;
 
   // convert another kind of file buffer to block
-  // no ownership transfer, just borrowing (because block don't neccesarilly in
-  // memory)
-  auto ConvertBlock(BlockId blockId, FileBuffer &source)
+  auto ConvertBlock(BlockId blockId, unique_ptr<FileBuffer> source)
       -> unique_ptr<Block> override;
 
   // create a new block, can reuse old file buffer.
   // source can be nullptr, we allocate new memory at that time.
-  // so use raw pointer here.
-  auto CreateBlock(BlockId blockId, FileBuffer *source)
+  auto LoadCreateBlock(BlockId blockId, unique_ptr<FileBuffer> source)
       -> unique_ptr<Block> override;
 
   auto GetFreeBlockId() -> BlockId override;
@@ -69,12 +66,18 @@ public:
 private:
   auto GetFileFlag(bool createNew = false) const -> OpenFlags;
   void ChecksumAndWrite(FileBuffer &block, Offset location) const;
+  void ReadAndChecksum(FileBuffer &block, Offset location) const;
 
   StorageManagerOptions options_;
   Database &database_;
   string path_;
   unique_ptr<FileHandle> file_;
   FileBuffer metadataBuffer_;
+  mutable mutex mutex_;
+
+  u8 activeHeader;
+  u64 iterativeCount;
+  u64 maxBlock;
 };
 
 } // namespace saturn

@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include "common/result.hh"
 #include "common/serializer/serializer.hh"
 #include "container/vector.hh"
 
@@ -73,6 +74,20 @@ public:
     BinarySerializer serializer;
     serializer.WriteValue(obj);
     return std::move(serializer.data);
+  }
+
+  template <typename T>
+  static auto Serialize(const T &obj, Datum *buffer, Size bufferSize)
+      -> result<Size> {
+    BinarySerializer serializer;
+    serializer.WriteValue(obj);
+    auto size = serializer.data.size();
+    if (size > bufferSize) {
+      return absl::InvalidArgumentError(
+          "buffer size is not enough for this object");
+    }
+    std::memcpy(buffer, serializer.data.data(), size);
+    return Size(size);
   }
 
   void SetTag(const char *tag) override;

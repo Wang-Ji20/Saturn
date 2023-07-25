@@ -25,10 +25,24 @@ BlockHandle::BlockHandle(BlockManager &blockManager, BlockId blockId)
       buffer_{nullptr},
       canDestroy_{false} {}
 
-// TODO
 auto BlockHandle::Load(shared_ptr<BlockHandle> &handle,
                        unique_ptr<FileBuffer> buffer) -> BufferHandle {
-  return BufferHandle{};
+  if (handle->status_ == BlockStatus::LOADED) {
+    DCHECK(handle->buffer_ != nullptr);
+    return {handle, handle->buffer_.get()};
+  }
+
+  auto &blockManager = handle->blockManager_;
+  // invalid blockId, deal with it later
+  if (handle->blockId_ == BlockManager::kMaxBlockId) {
+    return BufferHandle{};
+  }
+  auto block =
+      blockManager.LoadCreateBlock(handle->blockId_, std::move(buffer));
+  blockManager.Read(*block);
+  handle->status_ = BlockStatus::LOADED;
+  handle->buffer_ = std::move(block);
+  return {handle, handle->buffer_.get()};
 }
 
 // TODO

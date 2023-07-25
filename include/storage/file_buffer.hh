@@ -32,6 +32,8 @@ enum class FileBufferType : u8 {
 };
 
 class FileBuffer {
+  friend class BlockManager;
+  friend class SingleFileBlockManager;
 public:
   FileBuffer(Allocator &allocator, FileBufferType type, Size requestSize);
   FileBuffer(FileBuffer &source, FileBufferType type);
@@ -39,8 +41,8 @@ public:
 
   Allocator &allocator;
   FileBufferType type;
-  DatumPtr buffer;
-  Size limitSize; // max size user can write, may be slighly bigger than
+  DatumPtr buffer = nullptr;
+  Size limitSize = 0_Size; // max size user can write, may be slighly bigger than
                   // requested, because of alignment
 
 
@@ -52,12 +54,11 @@ public:
   [[nodiscard]] auto GetAllocationSize() const -> Size { return internalSize; }
 
 protected:
-  DatumPtr internalBuffer;
-  Size internalSize;
+  DatumPtr internalBuffer = nullptr;
+  Size internalSize = 0_Size;
 
 private:
   void ReallocBuffer(Size newSize);
-  void Init();
 };
 
 } // namespace saturn

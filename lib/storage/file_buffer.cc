@@ -17,16 +17,11 @@ namespace saturn {
 FileBuffer::FileBuffer(Allocator &allocator,
                        FileBufferType type,
                        Size requestSize)
-    : allocator{allocator}, type{type}, limitSize{requestSize} {
-  Init();
+    : allocator{allocator}, type{type} {
   if (requestSize != 0U) {
     Resize(requestSize);
   }
-}
-
-void FileBuffer::Init() {
-  buffer = internalBuffer = nullptr;
-  limitSize = internalSize = 0_Size;
+  Clear();
 }
 
 FileBuffer::FileBuffer(FileBuffer &source, FileBufferType type)
@@ -36,7 +31,7 @@ FileBuffer::FileBuffer(FileBuffer &source, FileBufferType type)
       limitSize{source.limitSize},
       internalBuffer(source.internalBuffer),
       internalSize(source.internalSize) {
-  source.Init();
+  Clear();
 }
 
 FileBuffer::~FileBuffer() {
@@ -56,7 +51,7 @@ void FileBuffer::Write(FileHandle &handle, Offset location) const {
   handle.WriteAt(buffer, limitSize, location);
 }
 
-void FileBuffer::Clear() { memset(buffer, 0, limitSize); }
+void FileBuffer::Clear() { memset(internalBuffer, 0, internalSize); }
 
 //===------------------------------------------------===
 // find a correct size to allocate

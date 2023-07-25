@@ -26,4 +26,19 @@ auto CemeteryOfInnocent::SaturnReadValue(Deserializer &deserializer)
   return CemeteryOfInnocent{.version = Version(version)};
 }
 
+auto DatabaseHeader::SaturnReadValue(Deserializer &deserializer)
+    -> DatabaseHeader {
+  deserializer.OnObjectBegin();
+  DatabaseHeader ret;
+  deserializer.ReadProperty("iteration", ret.iteration);
+  u64 rootMeta;
+  deserializer.ReadProperty("rootMeta", rootMeta);
+  ret.rootMeta = BlockId(rootMeta);
+  u64 freeList;
+  deserializer.ReadProperty("freeList", freeList);
+  ret.freeList = BlockId(freeList);
+  deserializer.ReadProperty("blockCount", ret.blockCount);
+  return ret;
+}
+
 } // namespace saturn
