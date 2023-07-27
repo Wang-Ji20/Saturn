@@ -10,6 +10,7 @@
 #pragma once
 
 #include "common/constant.hh"
+#include "container/set.hh"
 #include "port/file_system.hh"
 #include "storage/block_manager.hh"
 
@@ -47,8 +48,7 @@ public:
   auto GetFreeBlockId() -> BlockId override;
   auto IsRootBlock(BlockId blockId) -> bool override;
   void MarkBlockAsFree(BlockId blockId) override;
-  auto MarkBlockAsModified(BlockId blockId) -> bool override;
-  void IncreaseBlockReferenceCount(BlockId blockId) override;
+  void MarkBlockAsModified(BlockId blockId) override;
   auto GetMetaBlock() -> BlockId override;
   void Read(Block &block) override;
   void Write(FileBuffer &block, BlockId blockId) override;
@@ -68,16 +68,27 @@ private:
   void ChecksumAndWrite(FileBuffer &block, Offset location) const;
   void ReadAndChecksum(FileBuffer &block, Offset location) const;
 
+  // variables about file I/O
   StorageManagerOptions options_;
   Database &database_;
   string path_;
   unique_ptr<FileHandle> file_;
   FileBuffer metadataBuffer_;
+
+  // guard
   mutable mutex mutex_;
 
+  // variables for block management
+  // free block list. we use them for now.
+  set<BlockId> freeBlocks_;
+  set<BlockId> modifiedBlocks_;
+  u64 maxBlock;
+  BlockId metaBlockId;
+  BlockId freeListId;
+
+  // variables for checkpoint
   u8 activeHeader;
   u64 iterativeCount;
-  u64 maxBlock;
 };
 
 } // namespace saturn

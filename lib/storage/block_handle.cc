@@ -22,8 +22,14 @@ BlockHandle::BlockHandle(BlockManager &blockManager, BlockId blockId)
       blockId_{blockId},
       memoryUsage_(Storage::BLOCK_ALLOC_SIZE),
       memoryCharge_{blockManager.bufferManager_.GetBufferPool()},
-      buffer_{nullptr},
-      canDestroy_{false} {}
+      buffer_{nullptr} {}
+
+BlockHandle::~BlockHandle() {
+  if (status_ == BlockStatus::LOADED) {
+    memoryCharge_.Resize(0_Size);
+  }
+  blockManager_.UnregisterBlock(blockId_);
+}
 
 auto BlockHandle::Load(shared_ptr<BlockHandle> &handle,
                        unique_ptr<FileBuffer> buffer) -> BufferHandle {
@@ -45,10 +51,26 @@ auto BlockHandle::Load(shared_ptr<BlockHandle> &handle,
   return {handle, handle->buffer_.get()};
 }
 
-// TODO
-auto BlockHandle::Unload() -> void {}
+auto BlockHandle::Unload() -> unique_ptr<FileBuffer> {
+  if (status_ == BlockStatus::UNLOADED) {
+    return nullptr;
+  }
+  DCHECK(CanUnload()) << "cannot unload this block.";
+  memoryCharge_.Resize(0_Size);
+  status_ = BlockStatus::UNLOADED;
+  return std::move(buffer_);
+}
 
-// TODO
-auto BlockHandle::CanUnload() -> bool { return false; }
+auto BlockHandle::CanUnload() -> bool {
+  // already unloaded, cannot unload more
+  if (status_ == BlockStatus::UNLOADED) {
+    return false;
+  }
+  // someone reading, cannot unload
+  if (readers_ > 0) {
+    return false;
+  }
+  return true;
+}
 
 } // namespace saturn

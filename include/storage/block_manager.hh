@@ -53,8 +53,7 @@ public:
   virtual auto GetFreeBlockId() -> BlockId = 0;
   virtual auto IsRootBlock(BlockId blockId) -> bool = 0;
   virtual void MarkBlockAsFree(BlockId blockId) = 0;
-  virtual auto MarkBlockAsModified(BlockId blockId) -> bool = 0;
-  virtual void IncreaseBlockReferenceCount(BlockId blockId) = 0;
+  virtual void MarkBlockAsModified(BlockId blockId) = 0;
   virtual auto GetMetaBlock() -> BlockId = 0;
   virtual void Read(Block &block) = 0;
   virtual void Write(FileBuffer &block, BlockId blockId) = 0;
@@ -65,7 +64,7 @@ public:
 
   auto RegisterBlock(BlockId blockId, bool isMetaBlock = false)
       -> shared_ptr<BlockHandle>;
-  void UnregisterBlock(BlockId blockId, bool canDestroy);
+  void UnregisterBlock(BlockId blockId);
 
 private:
   mutable mutex blockLock_;

@@ -17,6 +17,17 @@
 
 namespace saturn {
 
-class DefaultBufferManager : public BufferManager {};
+class Database;
+
+class DefaultBufferManager : public BufferManager {
+public:
+  explicit DefaultBufferManager(Database &database);
+  auto Pin(shared_ptr<BlockHandle> &handle) -> BufferHandle override;
+  void Unpin(shared_ptr<BlockHandle> &handle) override;
+  auto GetBufferPool() -> BufferPool & override;
+
+private:
+  Database &database_;
+};
 
 } // namespace saturn

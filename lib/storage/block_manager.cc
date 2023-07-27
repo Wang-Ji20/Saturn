@@ -32,7 +32,7 @@ auto BlockManager::RegisterBlock(BlockId blockId, bool isMetaBlock)
   return newBlock;
 }
 
-void BlockManager::UnregisterBlock(BlockId blockId, bool canDestroy) {
+void BlockManager::UnregisterBlock(BlockId blockId) {
   scoped_lock<mutex> lock(blockLock_);
   blockMap_.erase(blockId);
 }

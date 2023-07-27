@@ -62,14 +62,15 @@ class BlockHandle {
 
 public:
   BlockHandle(BlockManager &manager, BlockId blockId);
+  ~BlockHandle();
 
   BlockManager &blockManager_;
 
 private:
   static auto Load(shared_ptr<BlockHandle> &handle,
                    unique_ptr<FileBuffer> buffer = nullptr) -> BufferHandle;
-  static auto CanUnload() -> bool;
-  void Unload();
+  auto CanUnload() -> bool;
+  auto Unload() -> unique_ptr<FileBuffer>;
 
   mutable mutex lock_;
   atomic<Size> timestamp_;
@@ -79,7 +80,6 @@ private:
   Size memoryUsage_;
   BufferPoolReservation memoryCharge_;
   unique_ptr<FileBuffer> buffer_;
-  bool canDestroy_;
 };
 
 } // namespace saturn

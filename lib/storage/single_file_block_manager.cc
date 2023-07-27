@@ -121,4 +121,59 @@ auto SingleFileBlockManager::LoadCreateBlock(BlockId blockId,
   return make_unique<Block>(database_.GetAllocator(), blockId);
 }
 
+auto SingleFileBlockManager::GetFreeBlockId() -> BlockId {
+  scoped_lock<mutex> lock(mutex_);
+  BlockId nextFree;
+  if (freeBlocks_.empty()) {
+    nextFree = BlockId(maxBlock);
+    maxBlock++;
+    return nextFree;
+  }
+  nextFree = *freeBlocks_.begin();
+  freeBlocks_.erase(freeBlocks_.begin());
+  return nextFree;
+}
+
+auto SingleFileBlockManager::IsRootBlock(BlockId blockId) -> bool {
+  return blockId == GetMetaBlock();
+}
+
+void SingleFileBlockManager::MarkBlockAsFree(BlockId blockId) {
+  scoped_lock<mutex> lock(mutex_);
+  if (freeBlocks_.find(blockId) != freeBlocks_.end()) {
+    throw InternalException("block is already free");
+  }
+  freeBlocks_.insert(blockId);
+}
+
+void SingleFileBlockManager::MarkBlockAsModified(BlockId blockId) {
+  scoped_lock<mutex> lock(mutex_);
+  DCHECK(freeBlocks_.find(blockId) == freeBlocks_.end());
+  if (modifiedBlocks_.find(blockId) != modifiedBlocks_.end()) {
+    return;
+  }
+  modifiedBlocks_.insert(blockId);
+}
+
+auto SingleFileBlockManager::GetMetaBlock() -> BlockId { return metaBlockId; }
+
+void SingleFileBlockManager::Read(Block &block) {
+  DCHECK(freeBlocks_.find(block.id) == freeBlocks_.end());
+  ReadAndChecksum(block, Storage::GetBlockOffset(block.id));
+}
+
+void SingleFileBlockManager::Write(FileBuffer &block, BlockId blockId) {
+  ChecksumAndWrite(block, Storage::GetBlockOffset(blockId));
+}
+
+auto SingleFileBlockManager::CountBlocks() -> Size {
+  scoped_lock<mutex> lock(mutex_);
+  return Size(maxBlock);
+}
+
+auto SingleFileBlockManager::CountFreeBlocks() -> Size {
+  scoped_lock<mutex> lock(mutex_);
+  return Size(freeBlocks_.size());
+}
+
 } // namespace saturn
