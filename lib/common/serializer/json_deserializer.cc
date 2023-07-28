@@ -92,24 +92,24 @@ void JsonDeserializer::ThrowTypeError(yyjson_val *val, const char *expected) {
 // override hooks
 //===------------------------------------------------------------------------===
 
-auto JsonDeserializer::OnVectorBegin() -> Size {
+auto JsonDeserializer::OnVectorBegin() -> MemoryByte {
   auto *val = GetNextValue();
   if (!yyjson_is_arr(val)) {
     ThrowTypeError(val, "array");
   }
   Push(val);
-  return Size(yyjson_arr_size(val));
+  return yyjson_arr_size(val);
 }
 
 void JsonDeserializer::OnVectorEnd() { Pop(); }
 
-auto JsonDeserializer::OnMapBegin() -> Size {
+auto JsonDeserializer::OnMapBegin() -> MemoryByte {
   auto *val = GetNextValue();
   if (!yyjson_is_obj(val)) {
     ThrowTypeError(val, "array");
   }
   Push(val);
-  return Size(yyjson_obj_size(val));
+  return yyjson_obj_size(val);
 }
 
 void JsonDeserializer::OnMapEnd() { Pop(); }

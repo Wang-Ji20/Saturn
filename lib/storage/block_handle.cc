@@ -16,7 +16,7 @@ namespace saturn {
 
 BlockHandle::BlockHandle(BlockManager &blockManager, BlockId blockId)
     : blockManager_{blockManager},
-      timestamp_{0_Size},
+      timestamp_{0ULL},
       status_{BlockStatus::UNLOADED},
       readers_{0},
       blockId_{blockId},
@@ -26,7 +26,7 @@ BlockHandle::BlockHandle(BlockManager &blockManager, BlockId blockId)
 
 BlockHandle::~BlockHandle() {
   if (status_ == BlockStatus::LOADED) {
-    memoryCharge_.Resize(0_Size);
+    memoryCharge_.Resize(0ULL);
   }
   blockManager_.UnregisterBlock(blockId_);
 }
@@ -56,7 +56,7 @@ auto BlockHandle::Unload() -> unique_ptr<FileBuffer> {
     return nullptr;
   }
   DCHECK(CanUnload()) << "cannot unload this block.";
-  memoryCharge_.Resize(0_Size);
+  memoryCharge_.Resize(0ULL);
   status_ = BlockStatus::UNLOADED;
   return std::move(buffer_);
 }

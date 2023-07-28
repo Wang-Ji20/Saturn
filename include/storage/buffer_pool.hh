@@ -25,11 +25,11 @@ namespace saturn {
 
 struct BufferEvictionNode {
   BufferEvictionNode() = default;
-  BufferEvictionNode(weak_ptr<BlockHandle> handle, Size timestamp)
+  BufferEvictionNode(weak_ptr<BlockHandle> handle, MemoryByte timestamp)
       : handle_{std::move(handle)}, timestamp_{timestamp} {}
 
   weak_ptr<BlockHandle> handle_;
-  Size timestamp_;
+  MemoryByte timestamp_;
 
   auto CanUnload(BlockHandle& handle) -> bool;
   auto TryGetBlockHandle() -> shared_ptr<BlockHandle>;
@@ -37,15 +37,15 @@ struct BufferEvictionNode {
 
 class BufferPool {
 public:
-  explicit BufferPool(Size maxSize) :
+  explicit BufferPool(MemoryByte maxSize) :
       maxMemory_{maxSize}
       {}
   DISALLOW_COPY(BufferPool);
 
-  inline auto GetMaxMemory() -> Size { return Size(maxMemory_); }
-  inline auto GetUsedMemory() -> Size { return Size(usedMemory_); }
-  auto IncreaseUsedMemory(Size size) -> Status;
-  auto SetMaxMemory(Size size) -> Status;
+  inline auto GetMaxMemory() -> MemoryByte { return maxMemory_; }
+  inline auto GetUsedMemory() -> MemoryByte { return usedMemory_; }
+  auto IncreaseUsedMemory(MemoryByte size) -> Status;
+  auto SetMaxMemory(MemoryByte size) -> Status;
 
 protected:
   struct Eviction {
@@ -53,15 +53,15 @@ protected:
     BufferPoolReservation reservation;
     result<unique_ptr<FileBuffer>> reuseBuffer;
   };
-  auto EvictBlocks(Offset extraMemory, Size memoryLimit) -> Eviction;
+  auto EvictBlocks(MemoryByte extraMemory, MemoryByte memoryLimit) -> Eviction;
 
   // garbage cleaning routines.
   void GCQueue();
   void AddToEvictionQueue(shared_ptr<BlockHandle> &handle);
 
 private:
-  atomic<Size> maxMemory_;
-  atomic<Size> usedMemory_ {0_Size};
+  atomic<MemoryByte> maxMemory_;
+  atomic<MemoryByte> usedMemory_ {0ULL};
   unique_ptr<ConcurrentQueue<BufferEvictionNode>> evictionQueue_;
   atomic<u32> queueInsertions_;
 };

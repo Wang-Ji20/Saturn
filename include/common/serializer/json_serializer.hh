@@ -106,14 +106,14 @@ public:
   //===------------------------------------------------===
   // write a vector
   //===------------------------------------------------===
-  void OnVectorBegin(Size size) final;
-  void OnVectorEnd(Size size) final;
+  void OnVectorBegin(MemoryByte size) final;
+  void OnVectorEnd(MemoryByte size) final;
 
   //===------------------------------------------------===
   // write an unordered map
   //===------------------------------------------------===
-  void OnUnorderedMapBegin(Size size) final;
-  void OnUnorderedMapEnd(Size size) final;
+  void OnUnorderedMapBegin(MemoryByte size) final;
+  void OnUnorderedMapEnd(MemoryByte size) final;
   void OnUnorderedMapItemBegin() final;
   void OnUnorderedMapItemEnd() final;
   void OnUnorderedMapKeyBegin() final;

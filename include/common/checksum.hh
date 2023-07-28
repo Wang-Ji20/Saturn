@@ -26,11 +26,11 @@ struct HashingUtilities {
     return data * HashingConstants::kMagicOne;
   }
 
-  static auto Checksum(Datum *data, Size size) -> u64 {
-    Size inEightBytes = Size(size / sizeof(u64));
+  static auto Checksum(Datum *data, MemoryByte size) -> u64 {
+    u64 inEightBytes = size / sizeof(u64);
     u64 *data64 = reinterpret_cast<u64 *>(data);
     u64 checksum = 0;
-    for (auto i = 0_Size; i < inEightBytes; ++i) {
+    for (auto i = 0ULL; i < inEightBytes; ++i) {
       checksum ^= Checksum(data64[i]);
     }
     for (auto i = inEightBytes * sizeof(u64); i < size; ++i) {
@@ -38,7 +38,6 @@ struct HashingUtilities {
     }
     return checksum;
   }
-
 };
 
 } // namespace saturn

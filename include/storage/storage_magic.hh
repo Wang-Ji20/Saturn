@@ -25,7 +25,7 @@ namespace saturn {
 /// reserved
 struct CemeteryOfInnocent {
   static constexpr const char *kMagicString = "saturn";
-  static constexpr Size kMagicStringLength = 6_Size;
+  static constexpr MemoryByte kMagicStringLength = 6ULL;
   Version version = Storage::VERSION;
 
   // throw exception if not match, because it is severe and we can stop a user

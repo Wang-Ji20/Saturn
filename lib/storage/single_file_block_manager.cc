@@ -45,7 +45,7 @@ auto SingleFileBlockManager::GetFileFlag(bool createNew) const -> OpenFlags {
 }
 
 void SingleFileBlockManager::ChecksumAndWrite(FileBuffer &block,
-                                              Offset location) const {
+                                              MemoryByte location) const {
   // compute the checksum and write it to the start of the buffer
   uint64_t checksum = HashingUtilities::Checksum(block.buffer, block.limitSize);
   std::memcpy(block.buffer, &checksum, sizeof(checksum));
@@ -54,9 +54,9 @@ void SingleFileBlockManager::ChecksumAndWrite(FileBuffer &block,
 }
 
 void SingleFileBlockManager::ReadAndChecksum(FileBuffer &block,
-                                             Offset location) const {
+                                             MemoryByte location) const {
   block.Read(*file_, location);
-  auto fileChecksum = MemoryUtils::Load<u64>(block.internalBuffer, 0_Offset);
+  auto fileChecksum = MemoryUtils::Load<u64>(block.internalBuffer, 0ULL);
   auto checksum = HashingUtilities::Checksum(block.buffer, block.limitSize);
   if (fileChecksum != checksum) {
     throw IllegalArgumentException("trying to read a corrupted block.");
@@ -73,11 +73,11 @@ void SingleFileBlockManager::CreateNewDatabase() {
   CemeteryOfInnocent mainHeader;
   mainHeader.version = Storage::VERSION;
   auto serializerResult = BinarySerializer::Serialize(
-      mainHeader, metadataBuffer_.buffer, Size(sizeof(mainHeader)));
+      mainHeader, metadataBuffer_.buffer, sizeof(mainHeader));
   if (!serializerResult.ok()) {
     throw InternalException("failed to serialize file header");
   }
-  ChecksumAndWrite(metadataBuffer_, 0_Offset);
+  ChecksumAndWrite(metadataBuffer_, 0ULL);
 
   // write metadata about database.
   // double buffer headers
@@ -89,13 +89,12 @@ void SingleFileBlockManager::CreateNewDatabase() {
       .blockCount = 0,
   };
   serializerResult = BinarySerializer::Serialize(
-      databaseHeader, metadataBuffer_.buffer, Size(sizeof(databaseHeader)));
+      databaseHeader, metadataBuffer_.buffer, sizeof(databaseHeader));
   if (!serializerResult.ok()) {
     throw InternalException("failed to serialize database header");
   }
   for (int i = 1; i < 3; ++i) {
-    ChecksumAndWrite(metadataBuffer_,
-                     Offset(i * static_cast<i64>(Storage::SECTOR_SIZE)));
+    ChecksumAndWrite(metadataBuffer_, i * Storage::SECTOR_SIZE);
   }
   file_->Sync();
   activeHeader = 1;
@@ -166,14 +165,14 @@ void SingleFileBlockManager::Write(FileBuffer &block, BlockId blockId) {
   ChecksumAndWrite(block, Storage::GetBlockOffset(blockId));
 }
 
-auto SingleFileBlockManager::CountBlocks() -> Size {
+auto SingleFileBlockManager::CountBlocks() -> MemoryByte {
   scoped_lock<mutex> lock(mutex_);
-  return Size(maxBlock);
+  return maxBlock;
 }
 
-auto SingleFileBlockManager::CountFreeBlocks() -> Size {
+auto SingleFileBlockManager::CountFreeBlocks() -> MemoryByte {
   scoped_lock<mutex> lock(mutex_);
-  return Size(freeBlocks_.size());
+  return freeBlocks_.size();
 }
 
 } // namespace saturn

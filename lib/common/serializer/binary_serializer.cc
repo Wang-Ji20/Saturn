@@ -20,14 +20,18 @@ void BinarySerializer::SetTag(const char *tag) {
 // complex types
 //===------------------------------------------------------------------------===
 
-void BinarySerializer::OnVectorBegin(Size size) { Write<Size>(size); }
+void BinarySerializer::OnVectorBegin(MemoryByte size) {
+  Write<MemoryByte>(size);
+}
 
-void BinarySerializer::OnUnorderedMapBegin(Size size) { Write<Size>(size); }
+void BinarySerializer::OnUnorderedMapBegin(MemoryByte size) {
+  Write<MemoryByte>(size);
+}
 
 void BinarySerializer::OnObjectBegin() {
-  stack.emplace_back(0, 0_Size, Offset(static_cast<long long>(data.size())));
-  Write<u32>(0);       // Placeholder for the field count
-  Write<Size>(0_Size); // Placeholder for the size
+  stack.emplace_back(0, 0ULL, data.size());
+  Write<u32>(0);           // Placeholder for the field count
+  Write<MemoryByte>(0ULL); // Placeholder for the size
 }
 
 void BinarySerializer::OnObjectEnd() {
@@ -35,7 +39,7 @@ void BinarySerializer::OnObjectEnd() {
   // Patch the field count and size
   auto *message_start = &data[frame.bufferOffset];
   Store<u32>(frame.fieldCount, message_start);
-  Store<Size>(frame.objectSize, message_start + sizeof(u32));
+  Store<MemoryByte>(frame.objectSize, message_start + sizeof(u32));
   stack.pop_back();
 }
 
@@ -70,7 +74,7 @@ void BinarySerializer::WriteValue(double value) { Write<double>(value); }
 void BinarySerializer::WriteValue(const char *value) {
   auto length = strlen(value);
   Write<size_t>(length);
-  WriteData(value, Size(length));
+  WriteData(value, length);
 }
 
 } // namespace saturn

@@ -35,30 +35,30 @@ class FileBuffer {
   friend class BlockManager;
   friend class SingleFileBlockManager;
 public:
-  FileBuffer(Allocator &allocator, FileBufferType type, Size requestSize);
+  FileBuffer(Allocator &allocator, FileBufferType type, MemoryByte requestSize);
   FileBuffer(FileBuffer &source, FileBufferType type);
   virtual ~FileBuffer();
 
   Allocator &allocator;
   FileBufferType type;
   DatumPtr buffer = nullptr;
-  Size limitSize = 0_Size; // max size user can write, may be slighly bigger than
+  MemoryByte limitSize = 0ULL; // max size user can write, may be slighly bigger than
                   // requested, because of alignment
 
 
-  void Read(FileHandle &handle, Offset location) const;
-  void Write(FileHandle &handle, Offset location) const;
+  void Read(FileHandle &handle, MemoryByte location) const;
+  void Write(FileHandle &handle, MemoryByte location) const;
   void Clear();
-  void Resize(Size newSize);
+  void Resize(MemoryByte newSize);
 
-  [[nodiscard]] auto GetAllocationSize() const -> Size { return internalSize; }
+  [[nodiscard]] auto GetAllocationSize() const -> MemoryByte { return internalSize; }
 
 protected:
   DatumPtr internalBuffer = nullptr;
-  Size internalSize = 0_Size;
+  MemoryByte internalSize = 0ULL;
 
 private:
-  void ReallocBuffer(Size newSize);
+  void ReallocBuffer(MemoryByte newSize);
 };
 
 } // namespace saturn

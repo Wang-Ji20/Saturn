@@ -16,21 +16,21 @@ namespace saturn {
 class BinaryDeserializer : public Deserializer {
 public:
   template <typename T>
-  static auto Deserialize(Datum *ptr, Size length) -> unique_ptr<T> {
+  static auto Deserialize(Datum *ptr, MemoryByte length) -> unique_ptr<T> {
     BinaryDeserializer deserializer(ptr, length);
     auto result = deserializer.Read<T>();
     return make_unique<T>(std::move(result));
   }
 
 private:
-  explicit BinaryDeserializer(Datum *ptr, Size length)
+  explicit BinaryDeserializer(Datum *ptr, MemoryByte length)
       : ptr_(ptr), endPtr_(ptr + length) {}
 
   struct State {
     u32 expectedFieldCount;
-    Size expectedSize;
+    MemoryByte expectedSize;
     u32 readFieldCount = 0;
-    State(u32 expected_field_count, Size expected_size)
+    State(u32 expected_field_count, MemoryByte expected_size)
         : expectedFieldCount(expected_field_count),
           expectedSize(expected_size) {}
   };
@@ -44,11 +44,11 @@ private:
     static_assert(std::is_trivially_destructible<T>::value,
                   "T must be trivally destructible-typed variable");
     T value;
-    ReadData((Datum *)&value, Size(sizeof(T)));
+    ReadData((Datum *)&value, sizeof(T));
     return value;
   }
 
-  void ReadData(Datum *buffer, Size read_size) {
+  void ReadData(Datum *buffer, MemoryByte read_size) {
     if (ptr_ + read_size > endPtr_) {
       throw ParseException("Failed to deserialize: not enough data in buffer "
                            "to fulfill read request");
@@ -57,7 +57,7 @@ private:
     ptr_ += read_size;
   }
 
-  void ReadData(vector<Datum> &data, Size read_size) {
+  void ReadData(vector<Datum> &data, MemoryByte read_size) {
     if (ptr_ + read_size > endPtr_) {
       throw ParseException("Failed to deserialize: not enough data in buffer "
                            "to fulfill read request");
@@ -71,8 +71,8 @@ public:
   // override functions
   //===------------------------------------------------------------------------===
   void SetTag(const char *tag) override;
-  auto OnVectorBegin() -> Size override;
-  auto OnMapBegin() -> Size override;
+  auto OnVectorBegin() -> MemoryByte override;
+  auto OnMapBegin() -> MemoryByte override;
   void OnObjectBegin() override;
   void OnObjectEnd() override;
 

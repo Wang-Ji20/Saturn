@@ -11,6 +11,6 @@
 
 namespace saturn {
 
-void FileSystem::Reset(FileHandle &handle) { Seek(handle, Offset(0)); }
+void FileSystem::Reset(FileHandle &handle) { Seek(handle, 0); }
 
 } // namespace saturn

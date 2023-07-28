@@ -25,7 +25,7 @@ void BinaryDeserializer::OnObjectBegin() {
   auto expected_size = ReadPOD<u64>();
   DCHECK(expected_field_count > 0);
   DCHECK(expected_size > 0);
-  stack.emplace_back(expected_field_count, Size(expected_size));
+  stack.emplace_back(expected_field_count, expected_size);
 }
 
 void BinaryDeserializer::OnObjectEnd() {
@@ -36,9 +36,13 @@ void BinaryDeserializer::OnObjectEnd() {
   stack.pop_back();
 }
 
-auto BinaryDeserializer::OnVectorBegin() -> Size { return ReadPOD<Size>(); }
+auto BinaryDeserializer::OnVectorBegin() -> MemoryByte {
+  return ReadPOD<MemoryByte>();
+}
 
-auto BinaryDeserializer::OnMapBegin() -> Size { return ReadPOD<Size>(); }
+auto BinaryDeserializer::OnMapBegin() -> MemoryByte {
+  return ReadPOD<MemoryByte>();
+}
 
 //===------------------------------------------------------------------------===
 // Primitive types
@@ -73,7 +77,7 @@ auto BinaryDeserializer::ReadString() -> string {
   }
   auto buffer = vector<Datum>();
   buffer.reserve(length);
-  ReadData(buffer, Size(length));
+  ReadData(buffer, length);
   return {buffer.begin(), buffer.end()};
 }
 

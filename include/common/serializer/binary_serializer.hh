@@ -31,9 +31,9 @@ private:
 
   struct State {
     u32 fieldCount;
-    Size objectSize;
-    Offset bufferOffset;
-    State(u32 fieldCount, Size objectSize, Offset bufferOffset)
+    MemoryByte objectSize;
+    MemoryByte bufferOffset;
+    State(u32 fieldCount, MemoryByte objectSize, MemoryByte bufferOffset)
         : fieldCount(fieldCount),
           objectSize(objectSize),
           bufferOffset(bufferOffset) {}
@@ -52,19 +52,19 @@ private:
   template <typename T> void Write(T value) {
     static_assert(std::is_trivially_destructible<T>::value,
                   "T must be trivally destructible-typed variable");
-    WriteData(reinterpret_cast<const char *>(&value), Size(sizeof(T)));
+    WriteData(reinterpret_cast<const char *>(&value), sizeof(T));
   }
 
-  void WriteData(const Datum *buffer, Size size) {
+  void WriteData(const Datum *buffer, MemoryByte size) {
     data.insert(data.end(), buffer, buffer + size);
     stack.back().objectSize += size;
   }
 
-  void WriteData(const char *buffer, Size size) {
+  void WriteData(const char *buffer, MemoryByte size) {
     WriteData(reinterpret_cast<const Datum *>(buffer), size);
   }
 
-  explicit BinarySerializer() { stack.emplace_back(0, 0_Size, 0_Offset); };
+  explicit BinarySerializer() { stack.emplace_back(0, 0, 0); };
 
   //===------------------------------------------------------------------------===
   // parent interface
@@ -77,8 +77,8 @@ public:
   }
 
   template <typename T>
-  static auto Serialize(const T &obj, Datum *buffer, Size bufferSize)
-      -> result<Size> {
+  static auto Serialize(const T &obj, Datum *buffer, MemoryByte bufferSize)
+      -> result<MemoryByte> {
     BinarySerializer serializer;
     serializer.WriteValue(obj);
     auto size = serializer.data.size();
@@ -87,7 +87,7 @@ public:
           "buffer size is not enough for this object");
     }
     std::memcpy(buffer, serializer.data.data(), size);
-    return Size(size);
+    return size;
   }
 
   void SetTag(const char *tag) override;
@@ -98,12 +98,12 @@ public:
   //===------------------------------------------------===
   // write a vector
   //===------------------------------------------------===
-  void OnVectorBegin(Size size) final;
+  void OnVectorBegin(MemoryByte size) final;
 
   //===------------------------------------------------===
   // write an unordered map
   //===------------------------------------------------===
-  void OnUnorderedMapBegin(Size size) final;
+  void OnUnorderedMapBegin(MemoryByte size) final;
 
   // https://stackoverflow.com/questions/3678197/virtual-function-implemented-in-base-class-not-being-found-by-compiler
   using Serializer::WriteValue;

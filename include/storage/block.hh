@@ -29,7 +29,7 @@ public:
 
   Block(Allocator &allocator,
         BlockId blockId,
-        Size internalSize = Storage::BLOCK_ALLOC_SIZE)
+        MemoryByte internalSize = Storage::BLOCK_ALLOC_SIZE)
       : FileBuffer{allocator, FileBufferType::BLOCK, internalSize}, id{blockId} {};
   Block(FileBuffer &source, BlockId blockId)
       : FileBuffer{source, FileBufferType::BLOCK}, id{blockId} {}
@@ -40,11 +40,11 @@ public:
 
 class BlockPointer {
 public:
-  BlockPointer(BlockId blockId, Offset offset) : id(blockId), offset(offset) {}
+  BlockPointer(BlockId blockId, MemoryByte offset) : id(blockId), offset(offset) {}
   BlockPointer() = default;
 
   BlockId id;
-  Offset offset;
+  MemoryByte offset;
 };
 
 } // namespace saturn

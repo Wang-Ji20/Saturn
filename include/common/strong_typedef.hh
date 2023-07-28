@@ -120,40 +120,44 @@ template <typename Underlying> struct StrongTypedef_base {
   using UNDERLYING_TYPE = Underlying;
   Underlying t;
   explicit constexpr StrongTypedef_base(const Underlying type_) : t(type_){};
-  StrongTypedef_base() = default;
-  StrongTypedef_base(const StrongTypedef_base &type_) = default;
-  operator const StrongTypedef_base &() const { return t; }
-  operator StrongTypedef_base &() { return t; }
+  constexpr StrongTypedef_base() = default;
+  constexpr StrongTypedef_base(const StrongTypedef_base &type_) = default;
+  constexpr operator const StrongTypedef_base &() const { return t; }
+  constexpr operator StrongTypedef_base &() { return t; }
 };
 
-#if 0
-// helper
-template <typename T> struct SelectLastHelper {
-  using type = T;
+template <typename Underlying>
+struct StrongTypedef_eq : public StrongTypedef_base<Underlying> {
+  constexpr auto operator==(const StrongTypedef_eq<Underlying> &rhs) const
+      -> bool {
+    return this->t == rhs.t;
+  }
 };
 
-// template mixin
-template <class... MIXINS>
-struct StrongTypedef : public StrongTypedef_base<typename decltype((
-                           SelectLastHelper<MIXINS>{}, ...))::type> {};
-
-template <template <class CHILDREN> class MIXIN, class... MIXINS>
-struct StrongTypedef<MIXIN<StrongTypedef<MIXINS...>>, MIXINS...>
-    : public StrongTypedef<MIXINS...>,
-      public MIXIN<StrongTypedef<MIXIN<StrongTypedef<MIXINS...>>, MIXINS...>> {
+template <typename Underlying>
+struct StrongTypedef_ord : public StrongTypedef_eq<Underlying> {
+  constexpr auto operator<(const StrongTypedef_eq<Underlying> &rhs) const
+      -> bool {
+    return this->t < rhs.t;
+  }
 };
 
-// additional functionalities are provided by typeclasses using mixins
-template <class BASE> struct StrongTypedef_eq {
-  auto operator==(const BASE &rhs) const -> bool { return BASE::t == rhs.t; }
+template <typename Underlying>
+struct StrongTypedef_num : public StrongTypedef_ord<Underlying> {
+  using D = StrongTypedef_num<Underlying>;
+  constexpr auto operator+(const D &rhs) const -> D {
+    return D(this->t + rhs.t);
+  }
+  constexpr auto operator-(const D &rhs) const -> D {
+    return D(this->t - rhs.t);
+  }
+  constexpr auto operator*(const D &rhs) const -> D {
+    return D(this->t * rhs.t);
+  }
+  constexpr auto operator/(const D &rhs) const -> D {
+    return D(this->t / rhs.t);
+  }
 };
-#endif
-
-template <class BASE> struct StrongTypedef_num {};
-
-template <class BASE> struct StrongTypedef_ord {};
-
-template <class BASE> struct StrongTypedef_show {};
 
 } // namespace saturn
 

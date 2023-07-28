@@ -59,8 +59,8 @@ public:
   virtual void Write(FileBuffer &block, BlockId blockId) = 0;
   virtual void Write(Block &block) { Write(block, block.id); };
 
-  virtual auto CountBlocks() -> Size = 0;
-  virtual auto CountFreeBlocks() -> Size = 0;
+  virtual auto CountBlocks() -> MemoryByte = 0;
+  virtual auto CountFreeBlocks() -> MemoryByte = 0;
 
   auto RegisterBlock(BlockId blockId, bool isMetaBlock = false)
       -> shared_ptr<BlockHandle>;

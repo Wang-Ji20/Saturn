@@ -53,8 +53,8 @@ public:
   void Read(Block &block) override;
   void Write(FileBuffer &block, BlockId blockId) override;
 
-  auto CountBlocks() -> Size override;
-  auto CountFreeBlocks() -> Size override;
+  auto CountBlocks() -> MemoryByte override;
+  auto CountFreeBlocks() -> MemoryByte override;
 
   auto RegisterBlock(BlockId blockId, bool isMetaBlock = false)
       -> shared_ptr<BlockHandle>;
@@ -65,8 +65,8 @@ public:
 
 private:
   auto GetFileFlag(bool createNew = false) const -> OpenFlags;
-  void ChecksumAndWrite(FileBuffer &block, Offset location) const;
-  void ReadAndChecksum(FileBuffer &block, Offset location) const;
+  void ChecksumAndWrite(FileBuffer &block, MemoryByte location) const;
+  void ReadAndChecksum(FileBuffer &block, MemoryByte location) const;
 
   // variables about file I/O
   StorageManagerOptions options_;

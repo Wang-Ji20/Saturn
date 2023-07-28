@@ -114,15 +114,15 @@ public:
   //===------------------------------------------------===
   // write a vector
   //===------------------------------------------------===
-  virtual void OnVectorBegin(Size size) {}
-  virtual void OnVectorEnd(Size size) {}
-  virtual void OnVectorItemBegin(Size maxSize, Offset curSize) {}
-  virtual void OnVectorItemEnd(Size maxSize, Offset curSize) {}
+  virtual void OnVectorBegin(MemoryByte size) {}
+  virtual void OnVectorEnd(MemoryByte size) {}
+  virtual void OnVectorItemBegin(MemoryByte maxSize, MemoryByte curSize) {}
+  virtual void OnVectorItemEnd(MemoryByte maxSize, MemoryByte curSize) {}
 
   template <typename T> void WriteValue(const std::vector<T> &vec) {
-    const Size vecSize = Size(vec.size());
+    const MemoryByte vecSize = vec.size();
     OnVectorBegin(vecSize);
-    for (Offset i = 0_Offset; i < vecSize; ++i) {
+    for (auto i = 0ULL; i < vecSize; ++i) {
       OnVectorItemBegin(vecSize, i);
       WriteValue(vec[i]);
       OnVectorItemEnd(vecSize, i);
@@ -133,8 +133,8 @@ public:
   //===------------------------------------------------===
   // write an unordered map
   //===------------------------------------------------===
-  virtual void OnUnorderedMapBegin(Size size) {}
-  virtual void OnUnorderedMapEnd(Size size) {}
+  virtual void OnUnorderedMapBegin(MemoryByte size) {}
+  virtual void OnUnorderedMapEnd(MemoryByte size) {}
   virtual void OnUnorderedMapItemBegin() {}
   virtual void OnUnorderedMapItemEnd() {}
   virtual void OnUnorderedMapKeyBegin() {}
@@ -144,7 +144,7 @@ public:
 
   template <typename K, typename V>
   void WriteValue(const std::unordered_map<K, V> &map) {
-    const Size mapSize = map.size();
+    const MemoryByte mapSize = map.size();
     OnUnorderedMapBegin(mapSize);
     for (auto &item : map) {
       OnUnorderedMapItemBegin();
@@ -162,13 +162,13 @@ public:
   //===------------------------------------------------===
   // write a set
   //===------------------------------------------------===
-  virtual void OnSetBegin(Size size) {}
-  virtual void OnSetEnd(Size size) {}
+  virtual void OnSetBegin(MemoryByte size) {}
+  virtual void OnSetEnd(MemoryByte size) {}
   virtual void OnSetItemBegin() {}
   virtual void OnSetItemEnd() {}
 
   template <typename T> void WriteValue(const std::set<T> &set) {
-    const Size setSize = set.size();
+    const MemoryByte setSize = set.size();
     OnSetBegin(setSize);
     for (auto &item : set) {
       OnSetItemBegin();

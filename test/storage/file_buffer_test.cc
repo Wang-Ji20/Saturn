@@ -33,17 +33,17 @@ TEST(FileBufferTest, ReadWrite) {
   auto type = fs->GetFileType(*handle);
   ASSERT_EQ(type, FileType::REGULAR);
 
-  auto buf = make_unique<FileBuffer>(alloc, FileBufferType::BLOCK, 128_Size);
+  auto buf = make_unique<FileBuffer>(alloc, FileBufferType::BLOCK, 128ULL);
   ASSERT_EQ(buf->limitSize, Storage::SECTOR_SIZE - Storage::BLOCK_HEADER_SIZE);
   buf->buffer[0] = 'a';
   buf->buffer[1] = 'b';
   buf->buffer[2] = 'c';
-  buf->Write(*handle, 0_Offset);
+  buf->Write(*handle, 0ULL);
 
   fs->Reset(*handle);
   auto pos = fs->GetPosition(*handle);
   ASSERT_EQ(pos, 0);
-  fs->Seek(*handle, 0_Offset);
+  fs->Seek(*handle, 0ULL);
   handle->Close();
   fs->Remove("./test.test");
 }

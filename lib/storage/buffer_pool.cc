@@ -12,7 +12,7 @@
 
 namespace saturn {
 
-void BufferPoolReservation::Resize(Size newSize) {
+void BufferPoolReservation::Resize(MemoryByte newSize) {
   auto result = pool.IncreaseUsedMemory(newSize - size);
   CHECK(result.ok()) << result.message();
   size = newSize;
@@ -20,7 +20,7 @@ void BufferPoolReservation::Resize(Size newSize) {
 
 void BufferPoolReservation::Merge(BufferPoolReservation &&other) {
   size += other.size;
-  other.size = 0_Size;
+  other.size = 0ULL;
 }
 
 auto BufferEvictionNode::CanUnload(BlockHandle &handle) -> bool {
@@ -41,7 +41,7 @@ auto BufferEvictionNode::TryGetBlockHandle() -> shared_ptr<BlockHandle> {
   return handle;
 }
 
-auto BufferPool::IncreaseUsedMemory(Size size) -> Status {
+auto BufferPool::IncreaseUsedMemory(MemoryByte size) -> Status {
   // https://en.cppreference.com/w/cpp/atomic/atomic/compare_exchange
   auto usedMemory = usedMemory_.load();
   while (!usedMemory_.compare_exchange_weak(usedMemory, usedMemory + size)) {
@@ -52,7 +52,7 @@ auto BufferPool::IncreaseUsedMemory(Size size) -> Status {
   return absl::OkStatus();
 }
 
-auto BufferPool::SetMaxMemory(Size size) -> Status {
+auto BufferPool::SetMaxMemory(MemoryByte size) -> Status {
   auto maxMemory = maxMemory_.load();
   while (!maxMemory_.compare_exchange_weak(maxMemory, size)) {
     if (maxMemory < usedMemory_.load()) {
@@ -62,12 +62,13 @@ auto BufferPool::SetMaxMemory(Size size) -> Status {
   return absl::OkStatus();
 }
 
-auto BufferPool::EvictBlocks(Offset extraMemory, Size memoryLimit) -> Eviction {
+auto BufferPool::EvictBlocks(MemoryByte extraMemory, MemoryByte memoryLimit)
+    -> Eviction {
   BufferEvictionNode node;
-  BufferPoolReservation resMem{*this, Size(extraMemory)};
+  BufferPoolReservation resMem{*this, extraMemory};
   while (usedMemory_.load() > memoryLimit) {
     if (evictionQueue_->TryDequeue(node)) {
-      resMem.Resize(0_Size);
+      resMem.Resize(0ULL);
       return {false,
               std::move(resMem),
               absl::ResourceExhaustedError("no more memory")};

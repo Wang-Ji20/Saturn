@@ -24,29 +24,29 @@ class BufferHandle;
 class BlockManager;
 
 struct BufferPoolReservation {
-  Size size{0};
+  MemoryByte size{0};
   BufferPool &pool;
 
   explicit BufferPoolReservation(BufferPool &bufferPool) : pool{bufferPool} {}
-  BufferPoolReservation(BufferPool &bufferPool, Size size) : pool{bufferPool} {
+  BufferPoolReservation(BufferPool &bufferPool, MemoryByte size) : pool{bufferPool} {
     Resize(size);
   }
   DISALLOW_COPY(BufferPoolReservation);
   BufferPoolReservation(BufferPoolReservation &&other) noexcept
       : pool{other.pool} {
     size = other.size;
-    other.size = 0_Size;
+    other.size = 0ULL;
   }
   auto operator=(BufferPoolReservation &&other) noexcept
       -> BufferPoolReservation & {
     size = other.size;
-    other.size = 0_Size;
+    other.size = 0ULL;
     return *this;
   }
 
-  ~BufferPoolReservation() { Resize(0_Size); };
+  ~BufferPoolReservation() { Resize(0ULL); };
 
-  void Resize(Size newSize);
+  void Resize(MemoryByte newSize);
   void Merge(BufferPoolReservation &&other);
 };
 
@@ -73,11 +73,11 @@ private:
   auto Unload() -> unique_ptr<FileBuffer>;
 
   mutable mutex lock_;
-  atomic<Size> timestamp_;
+  atomic<MemoryByte> timestamp_;
   atomic<BlockStatus> status_;
   atomic<i32> readers_;
   const BlockId blockId_;
-  Size memoryUsage_;
+  MemoryByte memoryUsage_;
   BufferPoolReservation memoryCharge_;
   unique_ptr<FileBuffer> buffer_;
 };
