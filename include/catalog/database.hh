@@ -17,6 +17,7 @@ namespace saturn {
 class StorageManager;
 class BufferManager;
 class Catalog;
+class BufferPool;
 
 class Database : std::enable_shared_from_this<Database> {
 public:
@@ -27,6 +28,7 @@ public:
   inline auto GetCatalog() -> Catalog & { return *catalog_; }
   inline auto GetFS() const -> FileSystem & { return *config.fileSystem; }
   inline auto GetAllocator() const -> Allocator & { return *config.allocator; }
+  inline auto GetBufferPool() const ->  BufferPool & {return *config.bufferPool;}
 
   // NOTE: we put replaceable components in DBConfig, user may change it using
   // .yaml files. Inreplaceable components are put in Database, user cannot

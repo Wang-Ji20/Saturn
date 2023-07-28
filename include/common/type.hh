@@ -39,3 +39,4 @@ using MemoryByte = u64;
 
 STRONG_TYPEDEF_TYPE_CLASS(eq)(u64, BlockId);
 STRONG_TYPEDEF_TYPE_CLASS(eq)(u64, Version);
+STRONG_TYPEDEF_TYPE_CLASS(eq)(u64, TableId);

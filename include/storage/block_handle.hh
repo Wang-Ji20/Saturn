@@ -59,6 +59,7 @@ class BlockHandle {
   friend struct BufferEvictionNode;
   friend struct BufferPoolReservation;
   friend class BufferPool;
+  friend class DefaultBufferManager;
 
 public:
   BlockHandle(BlockManager &manager, BlockId blockId);

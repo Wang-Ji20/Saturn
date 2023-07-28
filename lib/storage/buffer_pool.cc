@@ -23,14 +23,14 @@ void BufferPoolReservation::Merge(BufferPoolReservation &&other) {
   other.size = 0ULL;
 }
 
-auto BufferEvictionNode::CanUnload(BlockHandle &handle) -> bool {
+auto BufferEvictionNode::CanUnload(BlockHandle &handle) const -> bool {
   if (timestamp_ != handle.timestamp_.load()) {
     return false;
   }
   return handle.CanUnload();
 }
 
-auto BufferEvictionNode::TryGetBlockHandle() -> shared_ptr<BlockHandle> {
+auto BufferEvictionNode::TryGetBlockHandle() const -> shared_ptr<BlockHandle> {
   auto handle = handle_.lock();
   if (handle == nullptr) {
     return nullptr;

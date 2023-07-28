@@ -124,6 +124,7 @@ template <typename Underlying> struct StrongTypedef_base {
   constexpr StrongTypedef_base(const StrongTypedef_base &type_) = default;
   constexpr operator const StrongTypedef_base &() const { return t; }
   constexpr operator StrongTypedef_base &() { return t; }
+  constexpr auto GetUnderlying() -> Underlying & { return t; }
 };
 
 template <typename Underlying>

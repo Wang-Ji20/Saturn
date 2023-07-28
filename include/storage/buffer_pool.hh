@@ -14,12 +14,12 @@
 #pragma once
 
 #include "common/atomic.hh"
+#include "common/macro.hh"
 #include "common/result.hh"
 #include "common/type.hh"
-#include "common/macro.hh"
 #include "container/concurrent_queue.hh"
-#include "storage/file_buffer.hh"
 #include "storage/block_handle.hh"
+#include "storage/file_buffer.hh"
 
 namespace saturn {
 
@@ -31,15 +31,16 @@ struct BufferEvictionNode {
   weak_ptr<BlockHandle> handle_;
   MemoryByte timestamp_;
 
-  auto CanUnload(BlockHandle& handle) -> bool;
-  auto TryGetBlockHandle() -> shared_ptr<BlockHandle>;
+  auto CanUnload(BlockHandle &handle) const -> bool;
+  [[nodiscard]] auto TryGetBlockHandle() const -> shared_ptr<BlockHandle>;
 };
 
 class BufferPool {
+  friend class DefaultBufferManager;
+  friend struct BufferPoolReservation;
+
 public:
-  explicit BufferPool(MemoryByte maxSize) :
-      maxMemory_{maxSize}
-      {}
+  explicit BufferPool(MemoryByte maxSize) : maxMemory_{maxSize} {}
   DISALLOW_COPY(BufferPool);
 
   inline auto GetMaxMemory() -> MemoryByte { return maxMemory_; }
@@ -61,11 +62,9 @@ protected:
 
 private:
   atomic<MemoryByte> maxMemory_;
-  atomic<MemoryByte> usedMemory_ {0ULL};
+  atomic<MemoryByte> usedMemory_{0ULL};
   unique_ptr<ConcurrentQueue<BufferEvictionNode>> evictionQueue_;
   atomic<u32> queueInsertions_;
 };
-
-
 
 } // namespace saturn
