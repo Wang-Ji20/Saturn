@@ -27,11 +27,11 @@ TEST(FSTest, LocalFS) {
   ASSERT_EQ(*size, 0);
   auto type = fs->GetFileType(*handle);
   ASSERT_EQ(type, FileType::REGULAR);
-  auto written = fs->Write(*handle, "hello", 5_Size);
+  auto written = fs->Write(*handle, "hello", 5ULL);
   fs->Reset(*handle);
   auto pos = fs->GetPosition(*handle);
   ASSERT_EQ(pos, 0);
-  fs->Seek(*handle, 0_Offset);
+  fs->Seek(*handle, 0ULL);
   handle->Close();
   fs->Remove("./test.test");
 }

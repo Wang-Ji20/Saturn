@@ -20,13 +20,20 @@
 
 namespace saturn {
 
+class Database;
+
 class StorageManager {
 public:
-  explicit StorageManager(string path) : path_{std::move(path)} {};
+  StorageManager(Database &database, string path);
+  ~StorageManager() = default;
 
   CAST_TO_DERIVED(StorageManager);
+  auto isInMemory() -> bool;
 
-private:
+protected:
+  virtual void LoadDatabase() = 0;
+
+  Database &database_;
   string path_;
 };
 

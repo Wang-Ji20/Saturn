@@ -58,9 +58,9 @@ protected:
   // override functions
   //===------------------------------------------------------------------------===
   inline void SetTag(const char *tag) override { currentTag = tag; }
-  auto OnVectorBegin() -> Size override;
+  auto OnVectorBegin() -> MemoryByte override;
   void OnVectorEnd() override;
-  auto OnMapBegin() -> Size override;
+  auto OnMapBegin() -> MemoryByte override;
   void OnMapEnd() override;
   void OnMapEntryBegin() override;
   void OnMapEntryEnd() override;

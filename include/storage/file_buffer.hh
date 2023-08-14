@@ -19,7 +19,7 @@ namespace saturn {
 
 enum class FileBufferType : u8 {
   BLOCK =
-      1, // this kind of buffer is used to store PRESISTENT data like tables!
+      1, // this kind of buffer is used to store PRESISTENT data like rows!
 
   MANAGED_BUFFER = 2, // a buffer managed by the buffer pool, it can be used to
                       // store TEMPORARY data! we may remember that the query
@@ -32,32 +32,33 @@ enum class FileBufferType : u8 {
 };
 
 class FileBuffer {
+  friend class BlockManager;
+  friend class SingleFileBlockManager;
 public:
-  FileBuffer(Allocator &allocator, FileBufferType type, Size requestSize);
+  FileBuffer(Allocator &allocator, FileBufferType type, MemoryByte requestSize);
   FileBuffer(FileBuffer &source, FileBufferType type);
   virtual ~FileBuffer();
 
   Allocator &allocator;
   FileBufferType type;
-  DatumPtr buffer;
-  Size limitSize; // max size user can write, may be slighly bigger than
+  DatumPtr buffer = nullptr;
+  MemoryByte limitSize = 0ULL; // max size user can write, may be slighly bigger than
                   // requested, because of alignment
 
 
-  void Read(FileHandle &handle, Offset location) const;
-  void Write(FileHandle &handle, Offset location) const;
+  void Read(FileHandle &handle, MemoryByte location) const;
+  void Write(FileHandle &handle, MemoryByte location) const;
   void Clear();
-  void Resize(Size newSize);
+  void Resize(MemoryByte newSize);
 
-  [[nodiscard]] auto GetAllocationSize() const -> Size { return internalSize; }
+  [[nodiscard]] auto GetAllocationSize() const -> MemoryByte { return internalSize; }
 
 protected:
-  DatumPtr internalBuffer;
-  Size internalSize;
+  DatumPtr internalBuffer = nullptr;
+  MemoryByte internalSize = 0ULL;
 
 private:
-  void ReallocBuffer(Size newSize);
-  void Init();
+  void ReallocBuffer(MemoryByte newSize);
 };
 
 } // namespace saturn

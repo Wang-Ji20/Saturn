@@ -15,15 +15,15 @@
 namespace saturn {
 
 struct Arena {
-  Arena(Allocator &allocator, Size maxSize)
+  Arena(Allocator &allocator, MemoryByte maxSize)
       : data{allocator.Allocate(maxSize)}, maxSize{maxSize},
         curPosition{0}, next{nullptr} {}
 
   ~Arena();
 
   AllocatedData data;
-  Size maxSize;
-  Offset curPosition;
+  MemoryByte maxSize;
+  MemoryByte curPosition;
 
   unique_ptr<Arena> next;
   Arena *prev{};
@@ -31,12 +31,12 @@ struct Arena {
 
 class ArenaAllocator : public Allocator {
 public:
-  ArenaAllocator(Allocator &base, Size capacity)
+  ArenaAllocator(Allocator &base, MemoryByte capacity)
       : base_{base}, capacity_{capacity} {}
 
 private:
   [[maybe_unused]] Allocator& base_;
-  [[maybe_unused]] Size capacity_;
+  [[maybe_unused]] MemoryByte capacity_;
   [[maybe_unused]] unique_ptr<Arena> head_;
   [[maybe_unused]] Arena *tail_{};
 };

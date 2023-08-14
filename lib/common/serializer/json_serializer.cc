@@ -95,25 +95,25 @@ void JsonSerializer::OnPairKeyBegin() { SetTag("key"); }
 
 void JsonSerializer::OnPairValueBegin() { SetTag("value"); }
 
-void JsonSerializer::OnVectorBegin(Size size) {
+void JsonSerializer::OnVectorBegin(MemoryByte size) {
   auto *newValue = yyjson_mut_arr(doc);
-  if (size != 0_Size || !skipEmpty_) {
+  if (size != 0ULL || !skipEmpty_) {
     PushValue(newValue);
   }
   stack.push_back(newValue);
 }
 
-void JsonSerializer::OnVectorEnd(Size size) { stack.pop_back(); }
+void JsonSerializer::OnVectorEnd(MemoryByte size) { stack.pop_back(); }
 
-void JsonSerializer::OnUnorderedMapBegin(Size size) {
+void JsonSerializer::OnUnorderedMapBegin(MemoryByte size) {
   auto *newValue = yyjson_mut_arr(doc);
-  if (size != 0_Size || !skipEmpty_) {
+  if (size != 0ULL || !skipEmpty_) {
     PushValue(newValue);
   }
   stack.push_back(newValue);
 }
 
-void JsonSerializer::OnUnorderedMapEnd(Size size) { stack.pop_back(); }
+void JsonSerializer::OnUnorderedMapEnd(MemoryByte size) { stack.pop_back(); }
 
 void JsonSerializer::OnUnorderedMapItemBegin() {
   auto *newValue = yyjson_mut_obj(doc);

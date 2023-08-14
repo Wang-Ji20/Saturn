@@ -41,19 +41,19 @@ public:
 
   CAST_TO_DERIVED(FileHandle);
 
-  auto Read(void *buf, Size size) -> result<Size>;
-  void ReadAt(void *buf, Size size, Offset location);
-  auto Write(const void *buf, Size size) -> result<Size>;
-  void WriteAt(const void *buf, Size size, Offset location);
-  void Seek(Offset location);
+  auto Read(void *buf, MemoryByte size) -> result<MemoryByte>;
+  void ReadAt(void *buf, MemoryByte size, MemoryByte location);
+  auto Write(const void *buf, MemoryByte size) -> result<MemoryByte>;
+  void WriteAt(const void *buf, MemoryByte size, MemoryByte location);
+  void Seek(MemoryByte location);
   void Reset();
-  auto GetPosition() -> Offset;
+  auto GetPosition() -> MemoryByte;
   void Sync();
-  void Truncate(Size size);
+  void Truncate(MemoryByte size);
   auto ReadLine() -> string;
   auto CanSeek() -> bool;
   auto OnDisk() -> bool;
-  auto GetFileSize() -> result<Size>;
+  auto GetFileSize() -> result<MemoryByte>;
   auto GetType() -> FileType;
 
   virtual void Close() = 0;

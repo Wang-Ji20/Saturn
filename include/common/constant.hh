@@ -14,9 +14,15 @@
 namespace saturn {
 
 struct Storage {
-  constexpr static Size SECTOR_SIZE = 4096_Size;
-  constexpr static Size BLOCK_HEADER_SIZE = Size(sizeof(u64));
-  constexpr static Size BLOCK_ALLOC_SIZE = 262144_Size;
+  constexpr static MemoryByte SECTOR_SIZE = 4096;
+  constexpr static MemoryByte BLOCK_HEADER_SIZE = sizeof(u64);
+  constexpr static MemoryByte BLOCK_ALLOC_SIZE = 262144;
+  constexpr static Version VERSION = Version(0ULL);
+  constexpr static MemoryByte BLOCK_SECTION_BEGIN = SECTOR_SIZE * 3;
+
+  constexpr static auto GetBlockOffset(BlockId blockId) -> MemoryByte {
+    return BLOCK_SECTION_BEGIN + static_cast<u64>(blockId) * BLOCK_ALLOC_SIZE;
+  }
 };
 
 } // namespace saturn

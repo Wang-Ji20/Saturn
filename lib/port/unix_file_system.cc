@@ -89,30 +89,30 @@ void UnixFileSystem::Remove(string path) { PCHECK(unlink(path.c_str()) == 0); }
 
 void UnixFileSystem::ReadAt(FileHandle &handle,
                             void *buffer,
-                            Size nr_bytes,
-                            Offset location) {
+                            MemoryByte nr_bytes,
+                            MemoryByte location) {
   DCHECK(buffer);
   DCHECK(nr_bytes > 0);
   int UNIXfd = handle.Cast<UnixFileHandle>().fd;
   i64 nr_read = pread(UNIXfd, buffer, nr_bytes, location);
   PCHECK(nr_read > -1);
-  PCHECK(Size(nr_read) == nr_bytes); // considered a severe error
+  PCHECK(MemoryByte(nr_read) == nr_bytes); // considered a severe error
 }
 
 void UnixFileSystem::WriteAt(FileHandle &handle,
                              const void *buffer,
-                             Size nr_bytes,
-                             Offset location) {
+                             MemoryByte nr_bytes,
+                             MemoryByte location) {
   DCHECK(buffer);
   DCHECK(nr_bytes > 0);
   int UNIXfd = handle.Cast<UnixFileHandle>().fd;
   i64 nr_written = pwrite(UNIXfd, buffer, nr_bytes, location);
   PCHECK(nr_written > -1);
-  PCHECK(Size(nr_written) == nr_bytes); // considered a severe error
+  PCHECK(MemoryByte(nr_written) == nr_bytes); // considered a severe error
 }
 
-auto UnixFileSystem::Read(FileHandle &handle, void *buffer, Size nr_bytes)
-    -> result<Size> {
+auto UnixFileSystem::Read(FileHandle &handle, void *buffer, MemoryByte nr_bytes)
+    -> result<MemoryByte> {
   DCHECK(buffer);
   DCHECK(nr_bytes > 0);
   int UNIXfd = handle.Cast<UnixFileHandle>().fd;
@@ -121,12 +121,12 @@ auto UnixFileSystem::Read(FileHandle &handle, void *buffer, Size nr_bytes)
     PLOG(WARNING) << "read failed";
     return absl::ResourceExhaustedError("read failed");
   }
-  return Size(nr_read);
+  return nr_read;
 }
 
 auto UnixFileSystem::Write(FileHandle &handle,
                            const void *buffer,
-                           Size nr_bytes) -> result<Size> {
+                           MemoryByte nr_bytes) -> result<MemoryByte> {
   DCHECK(buffer);
   DCHECK(nr_bytes > 0);
   int UNIXfd = handle.Cast<UnixFileHandle>().fd;
@@ -135,12 +135,12 @@ auto UnixFileSystem::Write(FileHandle &handle,
     PLOG(WARNING) << "write failed";
     return absl::ResourceExhaustedError("write failed");
   }
-  return Size(nr_written);
+  return nr_written;
 }
 
-auto UnixFileSystem::GetFileSize(FileHandle &handle) -> result<Size> {
+auto UnixFileSystem::GetFileSize(FileHandle &handle) -> result<MemoryByte> {
   struct stat fileStat = handle.Cast<UnixFileHandle>().fileStat;
-  return Size(fileStat.st_size);
+  return fileStat.st_size;
 }
 
 auto UnixFileSystem::GetLastModifiedTime(FileHandle &handle) -> time_t {
@@ -176,31 +176,48 @@ auto UnixFileSystem::GetFileType(FileHandle &handle) -> FileType {
   return FileType::UNKNOWN;
 }
 
-void UnixFileSystem::Truncate(FileHandle &handle, Size size) {
+void UnixFileSystem::Truncate(FileHandle &handle, MemoryByte size) {
   int UNIXfd = handle.Cast<UnixFileHandle>().fd;
   PCHECK(ftruncate(UNIXfd, size) == 0);
 }
 
-static void setFilePointer(int UNIXfd, Offset offset) {
+static void setFilePointer(int UNIXfd, MemoryByte offset) {
   i64 result = lseek(UNIXfd, offset, SEEK_SET);
   PCHECK(result >= 0);
-  PCHECK(Size(result) == offset);
+  PCHECK(MemoryByte(result) == offset);
 }
 
-static auto getFilePointer(int UNIXfd) -> Offset {
+static auto getFilePointer(int UNIXfd) -> MemoryByte {
   auto offset = lseek(UNIXfd, 0, SEEK_CUR);
   PCHECK(offset >= 0);
-  return Offset(offset);
+  return offset;
 }
 
-void UnixFileSystem::Seek(FileHandle &handle, Offset location) {
+void UnixFileSystem::Seek(FileHandle &handle, MemoryByte location) {
   int UNIXfd = handle.Cast<UnixFileHandle>().fd;
   setFilePointer(UNIXfd, location);
 }
 
-auto UnixFileSystem::GetPosition(FileHandle &handle) -> Offset {
+auto UnixFileSystem::GetPosition(FileHandle &handle) -> MemoryByte {
   int UNIXfd = handle.Cast<UnixFileHandle>().fd;
   return getFilePointer(UNIXfd);
+}
+
+void UnixFileSystem::FileSync(FileHandle &handle) {
+  int UNIXfd = handle.Cast<UnixFileHandle>().fd;
+  PCHECK(fsync(UNIXfd) == 0);
+}
+
+auto UnixFileSystem::ExistFile(const string &path) -> bool {
+  if (path.empty()) {
+    return false;
+  }
+  if (access(path.c_str(), F_OK) != 0) {
+    return false;
+  }
+  struct stat fileStat;
+  PCHECK(stat(path.c_str(), &fileStat) == 0);
+  return S_ISREG(fileStat.st_mode);
 }
 
 } // namespace saturn

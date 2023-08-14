@@ -10,6 +10,9 @@ add_library(
     block_handle.cc
     block_manager.cc
     single_file_block_manager.cc
+    storage_manager.cc
+    single_file_storage_manager.cc
+    storage_magic.cc
 )
 
 set(

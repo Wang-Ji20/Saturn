@@ -10,11 +10,13 @@
 #pragma once
 
 #include "common/constant.hh"
+#include "container/set.hh"
+#include "port/file_system.hh"
 #include "storage/block_manager.hh"
 
 namespace saturn {
 
-class DatabaseInstance;
+class Database;
 
 struct StorageManagerOptions {
   bool read_only = false;
@@ -24,8 +26,9 @@ struct StorageManagerOptions {
 class SingleFileBlockManager : public BlockManager {
 public:
   ~SingleFileBlockManager() override = default;
-  explicit SingleFileBlockManager(BufferManager &bufferManager)
-      : BlockManager(bufferManager) {}
+  SingleFileBlockManager(Database &database,
+                         string path,
+                         StorageManagerOptions options = {});
 
   // essential methods
   DISALLOW_COPY(SingleFileBlockManager);
@@ -34,32 +37,58 @@ public:
       -> SingleFileBlockManager &;
 
   // convert another kind of file buffer to block
-  // no ownership transfer, just borrowing (because block don't neccesarilly in
-  // memory)
-  auto ConvertBlock(BlockId blockId, FileBuffer &source)
+  auto ConvertBlock(BlockId blockId, unique_ptr<FileBuffer> source)
       -> unique_ptr<Block> override;
 
   // create a new block, can reuse old file buffer.
   // source can be nullptr, we allocate new memory at that time.
-  // so use raw pointer here.
-  auto CreateBlock(BlockId blockId, FileBuffer *source)
+  auto LoadCreateBlock(BlockId blockId, unique_ptr<FileBuffer> source)
       -> unique_ptr<Block> override;
 
   auto GetFreeBlockId() -> BlockId override;
   auto IsRootBlock(BlockId blockId) -> bool override;
   void MarkBlockAsFree(BlockId blockId) override;
-  auto MarkBlockAsModified(BlockId blockId) -> bool override;
-  void IncreaseBlockReferenceCount(BlockId blockId) override;
+  void MarkBlockAsModified(BlockId blockId) override;
   auto GetMetaBlock() -> BlockId override;
   void Read(Block &block) override;
   void Write(FileBuffer &block, BlockId blockId) override;
 
-  auto CountBlocks() -> Size override;
-  auto CountFreeBlocks() -> Size override;
+  auto CountBlocks() -> MemoryByte override;
+  auto CountFreeBlocks() -> MemoryByte override;
 
   auto RegisterBlock(BlockId blockId, bool isMetaBlock = false)
       -> shared_ptr<BlockHandle>;
   void UnregisterBlock(BlockId blockId, bool canDestroy);
+
+  void CreateNewDatabase();
+  void LoadDatabase();
+
+private:
+  auto GetFileFlag(bool createNew = false) const -> OpenFlags;
+  void ChecksumAndWrite(FileBuffer &block, MemoryByte location) const;
+  void ReadAndChecksum(FileBuffer &block, MemoryByte location) const;
+
+  // variables about file I/O
+  StorageManagerOptions options_;
+  Database &database_;
+  string path_;
+  unique_ptr<FileHandle> file_;
+  FileBuffer metadataBuffer_;
+
+  // guard
+  mutable mutex mutex_;
+
+  // variables for block management
+  // free block list. we use them for now.
+  set<BlockId> freeBlocks_;
+  set<BlockId> modifiedBlocks_;
+  u64 maxBlock;
+  BlockId metaBlockId;
+  BlockId freeListId;
+
+  // variables for checkpoint
+  u8 activeHeader;
+  u64 iterativeCount;
 };
 
 } // namespace saturn

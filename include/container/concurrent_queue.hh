@@ -67,7 +67,7 @@ private:
     T value;
     Node *next;
   };
-  constexpr static Size NODE_SIZE = Size(sizeof(Node));
+  constexpr static MemoryByte NODE_SIZE = sizeof(Node);
   atomic<Node *> head_{nullptr};
   atomic<Node *> tail_{nullptr};
   mutable mutex lock_;

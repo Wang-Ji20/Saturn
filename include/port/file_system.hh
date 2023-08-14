@@ -40,30 +40,33 @@ public:
   // Read exactly nr_bytes from the file at location, terminate when cannot read
   // that much.
   virtual void
-  ReadAt(FileHandle &handle, void *buffer, Size nr_bytes, Offset location) = 0;
+  ReadAt(FileHandle &handle, void *buffer, MemoryByte nr_bytes, MemoryByte location) = 0;
 
   // Write exactly nr_bytes to the file at location, terminate when cannot write
   // that much.
   virtual void WriteAt(FileHandle &handle,
                        const void *buffer,
-                       Size nr_bytes,
-                       Offset location) = 0;
+                       MemoryByte nr_bytes,
+                       MemoryByte location) = 0;
 
-  virtual auto Read(FileHandle &handle, void *buffer, Size nr_bytes)
-      -> result<Size> = 0;
+  virtual auto Read(FileHandle &handle, void *buffer, MemoryByte nr_bytes)
+      -> result<MemoryByte> = 0;
 
-  virtual auto Write(FileHandle &handle, const void *buffer, Size nr_bytes)
-      -> result<Size> = 0;
+  virtual auto Write(FileHandle &handle, const void *buffer, MemoryByte nr_bytes)
+      -> result<MemoryByte> = 0;
 
-  virtual auto GetFileSize(FileHandle &handle) -> result<Size> = 0;
+  virtual auto GetFileSize(FileHandle &handle) -> result<MemoryByte> = 0;
   virtual auto GetLastModifiedTime(FileHandle &handle) -> time_t = 0;
 
   virtual auto GetFileType(FileHandle &handle) -> FileType = 0;
-  virtual void Truncate(FileHandle &handle, Size new_size) = 0;
+  virtual void Truncate(FileHandle &handle, MemoryByte new_size) = 0;
 
-  virtual void Seek(FileHandle &handle, Offset location) = 0;
+  virtual void Seek(FileHandle &handle, MemoryByte location) = 0;
   void Reset(FileHandle &handle);
-  virtual auto GetPosition(FileHandle &handle) -> Offset = 0;
+  virtual auto GetPosition(FileHandle &handle) -> MemoryByte = 0;
+  virtual void FileSync(FileHandle &handle) = 0;
+
+  virtual auto ExistFile(const string &path) -> bool = 0;
 };
 
 } // namespace saturn

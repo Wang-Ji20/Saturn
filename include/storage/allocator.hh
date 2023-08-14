@@ -37,7 +37,7 @@ class AllocatedData {
 
 public:
   AllocatedData() = default;
-  AllocatedData(Allocator &allocator, DatumPtr pointer, Size size);
+  AllocatedData(Allocator &allocator, DatumPtr pointer, MemoryByte size);
   virtual ~AllocatedData() = default;
 
   // essential methods
@@ -48,21 +48,21 @@ public:
 private:
   optional<Allocator *> allocator_{};
   DatumPtr pointer_{};
-  Size size_{};
+  MemoryByte size_{};
 };
 
-using MallocFunction = std::function<DatumPtr(Size)>;
+using MallocFunction = std::function<DatumPtr(MemoryByte)>;
 using FreeFunction = std::function<void(DatumPtr)>;
-using ReallocFunction = std::function<DatumPtr(DatumPtr, Size)>;
+using ReallocFunction = std::function<DatumPtr(DatumPtr, MemoryByte)>;
 
 class Allocator {
 public:
-  static constexpr const Size MAXIMUM_SIZE = 281474976710656_Size;
-  static auto DefaultMalloc(Size size) -> DatumPtr {
+  static constexpr const MemoryByte MAXIMUM_SIZE = 281474976710656ULL;
+  static auto DefaultMalloc(MemoryByte size) -> DatumPtr {
     return DatumPtr(std::malloc(size));
   };
 
-  static auto DefaultRealloc(DatumPtr pointer, Size size) -> DatumPtr {
+  static auto DefaultRealloc(DatumPtr pointer, MemoryByte size) -> DatumPtr {
     return DatumPtr(std::realloc(pointer, size));
   };
 
@@ -77,7 +77,7 @@ public:
   // the template is a syntax sugar for casting
   // WARNING: template must not divide to declaration and definition
   template <typename T = Datum>
-  auto AllocateData(Size size) -> T * {
+  auto AllocateData(MemoryByte size) -> T * {
     DCHECK(size > 0);
     DCHECK(size <= MAXIMUM_SIZE);
     auto *pointer = malloc_(size);
@@ -86,18 +86,18 @@ public:
   };
 
   template <typename T = Datum>
-  auto FreeData(T *pointer, Size size) -> void {
+  auto FreeData(T *pointer, MemoryByte size) -> void {
     DCHECK(pointer != nullptr);
     free_(reinterpret_cast<Datum*>(pointer));
   }
-  auto ReallocateData(DatumPtr pointer, Size size) -> DatumPtr;
+  auto ReallocateData(DatumPtr pointer, MemoryByte size) -> DatumPtr;
 
-  auto Allocate(Size size) -> AllocatedData;
+  auto Allocate(MemoryByte size) -> AllocatedData;
   auto Free(AllocatedData &data) -> void;
 
   template <typename T, typename... Args>
   auto make_unique(Args &&...args) -> unique_ptr<T> {
-    Size size = Size(sizeof(T));
+    MemoryByte size = sizeof(T);
     T *ptr = AllocateData<T *>(size);
     return std::move(
         unique_ptr(new (ptr) T(std::forward<Args>(args)...), [&]() {

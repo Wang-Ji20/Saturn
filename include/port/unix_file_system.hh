@@ -26,28 +26,31 @@ public:
 
   void ReadAt(FileHandle &handle,
               void *buffer,
-              Size nr_bytes,
-              Offset location) final;
+              MemoryByte nr_bytes,
+              MemoryByte location) final;
 
   void WriteAt(FileHandle &handle,
                const void *buffer,
-               Size nr_bytes,
-               Offset location) final;
+               MemoryByte nr_bytes,
+               MemoryByte location) final;
 
-  auto Read(FileHandle &handle, void *buffer, Size nr_bytes)
-      -> result<Size> final;
+  auto Read(FileHandle &handle, void *buffer, MemoryByte nr_bytes)
+      -> result<MemoryByte> final;
 
-  auto Write(FileHandle &handle, const void *buffer, Size nr_bytes)
-      -> result<Size> final;
+  auto Write(FileHandle &handle, const void *buffer, MemoryByte nr_bytes)
+      -> result<MemoryByte> final;
 
-  auto GetFileSize(FileHandle &handle) -> result<Size> final;
+  auto GetFileSize(FileHandle &handle) -> result<MemoryByte> final;
   auto GetLastModifiedTime(FileHandle &handle) -> time_t final;
 
   auto GetFileType(FileHandle &handle) -> FileType final;
-  void Truncate(FileHandle &handle, Size new_size) final;
+  void Truncate(FileHandle &handle, MemoryByte new_size) final;
 
-  void Seek(FileHandle &handle, Offset location) final;
-  auto GetPosition(FileHandle &handle) -> Offset final;
+  void Seek(FileHandle &handle, MemoryByte location) final;
+  auto GetPosition(FileHandle &handle) -> MemoryByte final;
+  void FileSync(FileHandle &handle) final;
+
+  auto ExistFile(const string &path) -> bool final;
 };
 
 } // namespace saturn

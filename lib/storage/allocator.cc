@@ -15,7 +15,9 @@
 
 namespace saturn {
 
-AllocatedData::AllocatedData(Allocator &allocator, DatumPtr pointer, Size size)
+AllocatedData::AllocatedData(Allocator &allocator,
+                             DatumPtr pointer,
+                             MemoryByte size)
     : allocator_(&allocator), pointer_(pointer), size_(size) {
   DCHECK(pointer_ != nullptr);
 };
@@ -40,7 +42,7 @@ Allocator::Allocator(MallocFunction mallocFunction,
   DCHECK(realloc_ != nullptr);
 };
 
-auto Allocator::Allocate(Size size) -> AllocatedData {
+auto Allocator::Allocate(MemoryByte size) -> AllocatedData {
   DCHECK(size > 0);
   DCHECK(size <= MAXIMUM_SIZE);
   auto *pointer = malloc_(size);
@@ -53,7 +55,7 @@ auto Allocator::Free(AllocatedData &data) -> void {
   free_(data.pointer_);
 };
 
-auto Allocator::ReallocateData(DatumPtr pointer, Size size) -> DatumPtr {
+auto Allocator::ReallocateData(DatumPtr pointer, MemoryByte size) -> DatumPtr {
   DCHECK(pointer != nullptr);
   DCHECK(size > 0);
   DCHECK(size <= MAXIMUM_SIZE);

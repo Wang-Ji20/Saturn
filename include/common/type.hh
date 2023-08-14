@@ -33,12 +33,10 @@ using u64 = std::uint64_t;
 // datum
 using Datum = u8;
 using DatumPtr = Datum *;
+using MemoryByte = u64;
 
 } // namespace saturn
 
-// offset, size
-STRONG_TYPEDEF_TYPE_CLASS(num)(i64, Offset);
-STRONG_TYPEDEF_TYPE_CLASS(num)(u64, Size);
-
 STRONG_TYPEDEF_TYPE_CLASS(eq)(u64, BlockId);
-
+STRONG_TYPEDEF_TYPE_CLASS(eq)(u64, Version);
+STRONG_TYPEDEF_TYPE_CLASS(eq)(u64, TableId);

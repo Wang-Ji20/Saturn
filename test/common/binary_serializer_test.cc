@@ -43,7 +43,7 @@ TEST(BinaryDeserializerTest, Basic) {
                         '\x77', '\x6f', '\x72', '\x6c', '\x64'};
   auto result =
       BinaryDeserializer::Deserialize<std::pair<string, string>>(
-          data.data(), Size(data.size()));
+          data.data(), data.size());
   ASSERT_EQ(result->first, "hello");
   ASSERT_EQ(result->second, "world");
 }
@@ -55,7 +55,7 @@ TEST(BinaryDeserializerTest, Extension) {
                         '\0', '\0'};
   auto result =
       BinaryDeserializer::Deserialize<SomeComplexStruct>(
-          data.data(), Size(data.size()));
+          data.data(), data.size());
   ASSERT_EQ(result->x, 1);
   ASSERT_EQ(result->y, 2);
 }

@@ -45,9 +45,9 @@ public:
   // class interface, override by concrete deserializer
   //===------------------------------------------------------------------------===
   virtual void SetTag(const char *tag) = 0;
-  virtual auto OnVectorBegin() -> Size = 0;
+  virtual auto OnVectorBegin() -> MemoryByte = 0;
   virtual void OnVectorEnd() {}
-  virtual auto OnMapBegin() -> Size = 0;
+  virtual auto OnMapBegin() -> MemoryByte = 0;
   virtual void OnMapEnd() {}
   virtual void OnMapEntryBegin() {}
   virtual void OnMapEntryEnd() {}
@@ -105,7 +105,7 @@ public:
     using ELEMENT_TYPE = typename is_vector<T>::ELEMENT_TYPE;
     T ret;
     auto size = OnVectorBegin();
-    for (Size i = 0_Size; i < size; ++i) {
+    for (auto i = 0ULL; i < size; ++i) {
       ret.push_back(Read<ELEMENT_TYPE>());
     }
     OnVectorEnd();
@@ -117,7 +117,7 @@ public:
     using VALUE_TYPE = typename is_unordered_map<T>::VALUE_TYPE;
     T ret;
     auto size = OnMapBegin();
-    for (Size i = 0_Size; i < size; ++i) {
+    for (auto i = 0ULL; i < size; ++i) {
       OnMapEntryBegin();
       OnMapKeyBegin();
       auto key = Read<KEY_TYPE>();
@@ -136,7 +136,7 @@ public:
     using ELEMENT_TYPE = typename is_unordered_set<T>::ELEMENT_TYPE;
     T ret;
     auto size = OnVectorBegin();
-    for (Size i = 0_Size; i < size; ++i) {
+    for (auto i = 0ULL; i < size; ++i) {
       ret.insert(Read<ELEMENT_TYPE>());
     }
     OnVectorEnd();

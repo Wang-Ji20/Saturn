@@ -16,17 +16,12 @@ namespace saturn {
 
 FileBuffer::FileBuffer(Allocator &allocator,
                        FileBufferType type,
-                       Size requestSize)
-    : allocator{allocator}, type{type}, limitSize{requestSize} {
-  Init();
+                       MemoryByte requestSize)
+    : allocator{allocator}, type{type} {
   if (requestSize != 0U) {
     Resize(requestSize);
   }
-}
-
-void FileBuffer::Init() {
-  buffer = internalBuffer = nullptr;
-  limitSize = internalSize = 0_Size;
+  Clear();
 }
 
 FileBuffer::FileBuffer(FileBuffer &source, FileBufferType type)
@@ -36,7 +31,7 @@ FileBuffer::FileBuffer(FileBuffer &source, FileBufferType type)
       limitSize{source.limitSize},
       internalBuffer(source.internalBuffer),
       internalSize(source.internalSize) {
-  source.Init();
+  Clear();
 }
 
 FileBuffer::~FileBuffer() {
@@ -46,42 +41,42 @@ FileBuffer::~FileBuffer() {
   allocator.FreeData(internalBuffer, internalSize);
 }
 
-void FileBuffer::Read(FileHandle &handle, Offset location) const {
+void FileBuffer::Read(FileHandle &handle, MemoryByte location) const {
   DCHECK(type != FileBufferType::TINY_BUFFER);
   handle.ReadAt(buffer, limitSize, location);
 }
 
-void FileBuffer::Write(FileHandle &handle, Offset location) const {
+void FileBuffer::Write(FileHandle &handle, MemoryByte location) const {
   DCHECK(type != FileBufferType::TINY_BUFFER);
   handle.WriteAt(buffer, limitSize, location);
 }
 
-void FileBuffer::Clear() { memset(buffer, 0, limitSize); }
+void FileBuffer::Clear() { memset(internalBuffer, 0, internalSize); }
 
 //===------------------------------------------------===
 // find a correct size to allocate
 //===------------------------------------------------===
 
 struct BufferMemoryRequirement {
-  Size header;
-  Size content;
+  MemoryByte header;
+  MemoryByte content;
 };
 
-static auto CalculateMemory(Size reqSize, FileBufferType type)
+static auto CalculateMemory(MemoryByte reqSize, FileBufferType type)
     -> BufferMemoryRequirement {
   BufferMemoryRequirement result{};
   if (type == FileBufferType::TINY_BUFFER) {
-    result.header = 0_Size;
+    result.header = 0ULL;
     result.content = reqSize;
   } else {
     result.header = Storage::BLOCK_HEADER_SIZE;
     result.content =
-        AlignDown<Size>(result.header + reqSize, Storage::SECTOR_SIZE);
+        AlignDown<MemoryByte>(result.header + reqSize, Storage::SECTOR_SIZE);
   }
   return result;
 }
 
-void FileBuffer::ReallocBuffer(Size newSize) {
+void FileBuffer::ReallocBuffer(MemoryByte newSize) {
   DatumPtr newBuffer = nullptr;
   if (internalBuffer != nullptr) {
     newBuffer = allocator.ReallocateData(internalBuffer, newSize);
@@ -95,10 +90,10 @@ void FileBuffer::ReallocBuffer(Size newSize) {
   internalSize = newSize;
   // caller's business
   buffer = nullptr;
-  limitSize = 0_Size;
+  limitSize = 0ULL;
 }
 
-void FileBuffer::Resize(Size newSize) {
+void FileBuffer::Resize(MemoryByte newSize) {
   auto [headerSize, contentSize] = CalculateMemory(newSize, type);
   ReallocBuffer(contentSize);
   if (newSize > 0) {
